@@ -13,10 +13,12 @@ public class PlayerController : MonoBehaviour
     Camera mainCamera;
 
     //Building
+    [Header("Building")]
     public float multible;
     public GameObject[] buildableObjects;
     GameObject[] instBuildableObjects;
     int buildingIndex;
+    bool rotate;
     bool building;
 
     //Clicking
@@ -107,21 +109,28 @@ public class PlayerController : MonoBehaviour
     {
         if (building)
         {
-            if (!instBuildableObjects[buildingIndex]) instBuildableObjects[buildingIndex] = Instantiate(buildableObjects[buildingIndex], transform);
+            if (!instBuildableObjects[buildingIndex]) instBuildableObjects[buildingIndex] = Instantiate(buildableObjects[buildingIndex], ship.transform);
             Collider2D instBuildableObjectCollider = instBuildableObjects[buildingIndex].GetComponent<Collider2D>();
 
             instBuildableObjects[buildingIndex].transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             instBuildableObjects[buildingIndex].transform.localPosition = new Vector3(Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.x / multible) * multible, Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.y / multible) * multible, 0);
-            instBuildableObjectCollider.enabled = false;
-            if (Input.GetButtonDown("Fire1"))
+            if (rotate && Input.GetKeyDown(KeyCode.R)) instBuildableObjects[buildingIndex].transform.localRotation = instBuildableObjects[buildingIndex].transform.localRotation * Quaternion.Euler(0, 0, 90);
+            instBuildableObjectCollider.isTrigger = true;
+
+            GameObject closestBuiltObjectToInstBuildableObject = FindClosestObjectThatContains(instBuildableObjects[buildingIndex], "_Building");
+
+
+            if (Input.GetButton("Fire1") && instBuildableObjects[buildingIndex].transform.localPosition != closestBuiltObjectToInstBuildableObject.transform.localPosition && (instBuildableObjects[buildingIndex].transform.localPosition - closestBuiltObjectToInstBuildableObject.transform.localPosition).magnitude == multible)
             {
-                instBuildableObjectCollider.enabled = true;
+                instBuildableObjectCollider.isTrigger = false;
+                allObjects.Add(instBuildableObjects[buildingIndex]);
                 instBuildableObjects[buildingIndex] = null;
             }
-            if (Input.GetButtonDown("Fire2"))
+            if (Input.GetButtonUp("Fire2"))
             {
                 Destroy(instBuildableObjects[buildingIndex].gameObject);
                 instBuildableObjects[buildingIndex] = null;
+                rotate = false;
                 building = false;
             }
         }
@@ -164,17 +173,29 @@ public class PlayerController : MonoBehaviour
     //GUI BUTTONS: START
     public void TestingObject()
     {
+        if (instBuildableObjects[buildingIndex]) Destroy(instBuildableObjects[buildingIndex]);
         buildingIndex = 0;
         building = true;
     }
 
     public void Slope()
     {
-        print("Yet to be implamented");
+        if (instBuildableObjects[buildingIndex]) Destroy(instBuildableObjects[buildingIndex]);
+        buildingIndex = 1;
+        rotate = true;
+        building = true;
+    }
+
+    public void TractorBeemGenerator()
+    {
+        if (instBuildableObjects[buildingIndex]) Destroy(instBuildableObjects[buildingIndex]);
+        buildingIndex = 2;
+        rotate = true;
+        building = true;
     }
     //GUI BUTTONS: END
 
-    private GameObject FindClosestObjectThatContains(string contains)
+    private GameObject FindClosestObjectThatContains(GameObject fromObject, string contains)
     {
         GameObject closest = null;
         List<GameObject> objectThatContains = new List<GameObject>(0);
@@ -187,7 +208,7 @@ public class PlayerController : MonoBehaviour
             {
                 if (allObjects[i].name.Contains(contains))
                 {
-                    distances.Add((transform.position - allObjects[i].transform.position).magnitude);
+                    distances.Add((fromObject.transform.position - allObjects[i].transform.position).magnitude);
                     objectThatContains.Add(allObjects[i]);
                 }
             }
@@ -197,7 +218,7 @@ public class PlayerController : MonoBehaviour
         {
             if (objectThatContains[i] != null)
             {
-                float distance = (transform.position - objectThatContains[i].transform.position).magnitude;
+                float distance = (fromObject.transform.position - objectThatContains[i].transform.position).magnitude;
                 if (distance == closestF) closest = objectThatContains[i];
             }
         }
@@ -209,7 +230,11 @@ public class PlayerController : MonoBehaviour
     {
         GameObject objectThatContains = null;
 
-        for (int i = 0; i < allObjects.Count; i++) if (allObjects[i] && allObjects[i].name.Contains(contains) && (fromObject.transform.position - allObjects[i].transform.position).magnitude <= distance) objectThatContains = allObjects[i];
+        for (int i = 0; i < allObjects.Count; i++)
+        {
+            if (allObjects[i] && allObjects[i].name.Contains(contains) && (fromObject.transform.position - allObjects[i].transform.position).magnitude <= distance) objectThatContains = allObjects[i];
+            if (!allObjects[i]) allObjects.RemoveAt(i);
+        }
 
         return objectThatContains;
     }
