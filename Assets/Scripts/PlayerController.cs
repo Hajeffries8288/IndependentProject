@@ -57,69 +57,14 @@ public class PlayerController : MonoBehaviour
 
         Clicking();
 
+        Building();
+
         Debuging();       
     }
 
     private void FixedUpdate()
     {
         DebugingPhysics();
-    }
-
-    private void Debuging()
-    {
-        //SelectingObjects
-        if (Input.GetButtonDown("Fire1") && !building)
-        {
-            Ray mousePosition = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit2D = Physics2D.GetRayIntersection(mousePosition, Mathf.Infinity, 1 << 6);
-            if (hit2D) print("Player Clicked " + hit2D.collider.name);
-        }
-    }
-
-    private void Clicking()
-    {
-        if (Input.GetButtonDown("Fire1") && !building)
-        {
-            RaycastHit2D raycast2D = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition), Mathf.Infinity, 1 << 0);
-            Collider2D hit2D = raycast2D.collider;
-        }
-
-        if (building)
-        {
-            Collider2D instBuildableObjectCollider = instBuildableObjects[buildingIndex].GetComponent<Collider2D>();
-
-            instBuildableObjects[buildingIndex].transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            instBuildableObjects[buildingIndex].transform.localPosition = new Vector3(Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.x / multible) * multible, Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.y / multible) * multible, 0);
-            instBuildableObjectCollider.enabled = false;
-            if (Input.GetButtonDown("Fire1"))
-            {
-                instBuildableObjectCollider.enabled = true;
-                building = false;
-            }
-        }
-    }
-
-    private void DebugingPhysics()
-    {
-        //GrabingStuff
-        if (Input.GetButton("Fire1"))
-        {
-            Ray mousePosition = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit2D = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition));
-
-            if (hit2D.collider && !objectGrabbed) objectGrabbed = hit2D.transform.gameObject;
-
-            if (objectGrabbed)
-            {
-                if (objectGrabbed.name.Contains("_Physics"))
-                {
-                    Rigidbody2D objectGrabbedRigidbody = objectGrabbed.GetComponent<Rigidbody2D>();
-
-                    objectGrabbedRigidbody.MovePosition(new Vector3(Mathf.Lerp(objectGrabbed.transform.position.x, mousePosition.origin.x, objectGrabbedSpeed * Time.fixedDeltaTime), Mathf.Lerp(objectGrabbed.transform.position.y, mousePosition.origin.y, objectGrabbedSpeed * Time.fixedDeltaTime), 0));
-                    objectGrabbedRigidbody.velocity = Vector2.zero;
-                }
-            }
-        }
     }
 
     private void Movement()
@@ -149,14 +94,85 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //Buttons
+    private void Clicking()
+    {
+        if (Input.GetButtonDown("Fire1") && !building)
+        {
+            RaycastHit2D raycast2D = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition), Mathf.Infinity, 1 << 0);
+            Collider2D hit2D = raycast2D.collider;
+        }
+    }
+
+    private void Building()
+    {
+        if (building)
+        {
+            if (!instBuildableObjects[buildingIndex]) instBuildableObjects[buildingIndex] = Instantiate(buildableObjects[buildingIndex], transform);
+            Collider2D instBuildableObjectCollider = instBuildableObjects[buildingIndex].GetComponent<Collider2D>();
+
+            instBuildableObjects[buildingIndex].transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            instBuildableObjects[buildingIndex].transform.localPosition = new Vector3(Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.x / multible) * multible, Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.y / multible) * multible, 0);
+            instBuildableObjectCollider.enabled = false;
+            if (Input.GetButtonDown("Fire1"))
+            {
+                instBuildableObjectCollider.enabled = true;
+                instBuildableObjects[buildingIndex] = null;
+            }
+            if (Input.GetButtonDown("Fire2"))
+            {
+                Destroy(instBuildableObjects[buildingIndex].gameObject);
+                instBuildableObjects[buildingIndex] = null;
+                building = false;
+            }
+        }
+    }
+
+    private void Debuging()
+    {
+        //SelectingObjects
+        if (Input.GetButtonDown("Fire1") && !building)
+        {
+            Ray mousePosition = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit2D hit2D = Physics2D.GetRayIntersection(mousePosition, Mathf.Infinity, 1 << 0);
+            if (hit2D) print("Player Clicked " + hit2D.collider.name);
+        }
+    }
+
+    private void DebugingPhysics()
+    {
+        //GrabingStuff
+        if (Input.GetButton("Fire1"))
+        {
+            Ray mousePosition = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit2D hit2D = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition));
+
+            if (hit2D.collider && !objectGrabbed) objectGrabbed = hit2D.transform.gameObject;
+
+            if (objectGrabbed)
+            {
+                if (objectGrabbed.name.Contains("_Physics"))
+                {
+                    Rigidbody2D objectGrabbedRigidbody = objectGrabbed.GetComponent<Rigidbody2D>();
+
+                    objectGrabbedRigidbody.MovePosition(new Vector3(Mathf.Lerp(objectGrabbed.transform.position.x, mousePosition.origin.x, objectGrabbedSpeed * Time.fixedDeltaTime), Mathf.Lerp(objectGrabbed.transform.position.y, mousePosition.origin.y, objectGrabbedSpeed * Time.fixedDeltaTime), 0));
+                    objectGrabbedRigidbody.velocity = Vector2.zero;
+                }
+            }
+        }
+    }
+
+    //GUI BUTTONS: START
     public void TestingObject()
     {
         buildingIndex = 0;
-        instBuildableObjects[0] = Instantiate(buildableObjects[buildingIndex], transform);
-        print(instBuildableObjects[0]);
         building = true;
     }
+
+    public void Slope()
+    {
+        print("Yet to be implamented");
+    }
+    //GUI BUTTONS: END
 
     private GameObject FindClosestObjectThatContains(string contains)
     {
