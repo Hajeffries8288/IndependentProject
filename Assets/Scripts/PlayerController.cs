@@ -37,6 +37,11 @@ public class PlayerController : MonoBehaviour
     {
         //Movement
         
+        //Building
+        instBuildableObjects = new GameObject[buildableObjects.Length];
+
+        //Clicking
+
 
         //Debuging
         mainCamera = Camera.main;
@@ -49,6 +54,8 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         Movement();
+
+        Clicking();
 
         Debuging();       
     }
@@ -79,15 +86,16 @@ public class PlayerController : MonoBehaviour
 
         if (building)
         {
-            GameObject instBuildableObject = instBuildableObjects[buildingIndex];
-            Vector3 instBuildableObjectLocalPosition = instBuildableObject.transform.localPosition;
-            Collider2D instBuildableObjectCollider = instBuildableObject.GetComponent<Collider2D>();
+            Collider2D instBuildableObjectCollider = instBuildableObjects[buildingIndex].GetComponent<Collider2D>();
 
-            instBuildableObject.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            instBuildableObject.transform.localPosition = new Vector3(Mathf.Round(instBuildableObjectLocalPosition.x / multible) * multible, Mathf.Round(instBuildableObjectLocalPosition.y / multible) * multible, 0);
+            instBuildableObjects[buildingIndex].transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            instBuildableObjects[buildingIndex].transform.localPosition = new Vector3(Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.x / multible) * multible, Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.y / multible) * multible, 0);
             instBuildableObjectCollider.enabled = false;
-            if (Input.GetButtonDown("Fire1")) instBuildableObjectCollider.enabled = true;
-            if (Input.GetButtonDown("Fire2")) building = false;
+            if (Input.GetButtonDown("Fire1"))
+            {
+                instBuildableObjectCollider.enabled = true;
+                building = false;
+            }
         }
     }
 
@@ -145,6 +153,8 @@ public class PlayerController : MonoBehaviour
     public void TestingObject()
     {
         buildingIndex = 0;
+        instBuildableObjects[0] = Instantiate(buildableObjects[buildingIndex], transform);
+        print(instBuildableObjects[0]);
         building = true;
     }
 

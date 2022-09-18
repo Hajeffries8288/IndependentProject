@@ -284,7 +284,8 @@ MonoBehaviour:
   shiftSpeed: 40
   maxZoomOut: 50
   multible: 1
-  buildableObjects: []
+  buildableObjects:
+  - {fileID: 4077217966821539177, guid: 7422af2af92777041836e5b230a6e4d5, type: 3}
   objectGrabbedSpeed: 20
   resorces: 0
 --- !u!1 &851533392
@@ -371,7 +372,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 617706664}
         m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
-        m_MethodName: TestingGUIBuildingSystem
+        m_MethodName: TestingObject
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

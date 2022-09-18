@@ -35,7 +35,6 @@ public class SpawningThings : MonoBehaviour
         astroyidsCreated = new List<GameObject>{};
         coroutineStart = new bool[10];          //NOTE: This number is prone to change
         for (int i = 0; i < coroutineStart.Length; i++) coroutineStart[i] = true;
-        GetComponent<CircleCollider2D>().radius = distanceFromShipForDespawn;
     }
 
     // Update is called once per frame
