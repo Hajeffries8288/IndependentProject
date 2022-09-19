@@ -93,7 +93,7 @@ GameObject:
   - component: {fileID: 1026694421513174586}
   - component: {fileID: 8155932307722905629}
   m_Layer: 0
-  m_Name: TestingBlock_Building
+  m_Name: TestingBlock_Attach
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

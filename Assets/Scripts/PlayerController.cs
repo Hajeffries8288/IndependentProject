@@ -21,6 +21,8 @@ public class PlayerController : MonoBehaviour
     bool rotate;
     bool building;
 
+    public BoxCollider2D boxCollider;
+
     //Clicking
     
 
@@ -112,17 +114,20 @@ public class PlayerController : MonoBehaviour
             if (!instBuildableObjects[buildingIndex]) instBuildableObjects[buildingIndex] = Instantiate(buildableObjects[buildingIndex], ship.transform);
             Collider2D instBuildableObjectCollider = instBuildableObjects[buildingIndex].GetComponent<Collider2D>();
 
+            instBuildableObjectCollider.enabled = false;
             instBuildableObjects[buildingIndex].transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             instBuildableObjects[buildingIndex].transform.localPosition = new Vector3(Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.x / multible) * multible, Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.y / multible) * multible, 0);
-            if (rotate && Input.GetKeyDown(KeyCode.R)) instBuildableObjects[buildingIndex].transform.localRotation = instBuildableObjects[buildingIndex].transform.localRotation * Quaternion.Euler(0, 0, 90);
-            instBuildableObjectCollider.isTrigger = true;
 
-            GameObject closestBuiltObjectToInstBuildableObject = FindClosestObjectThatContains(instBuildableObjects[buildingIndex], "_Building");
+            GameObject closestBuiltObjectToInstBuildableObject = FindClosestObjectThatContains(instBuildableObjects[buildingIndex], "_Attach");
 
-
-            if (Input.GetButton("Fire1") && instBuildableObjects[buildingIndex].transform.localPosition != closestBuiltObjectToInstBuildableObject.transform.localPosition && (instBuildableObjects[buildingIndex].transform.localPosition - closestBuiltObjectToInstBuildableObject.transform.localPosition).magnitude == multible)
+            if (rotate)
             {
-                instBuildableObjectCollider.isTrigger = false;
+                if (Input.GetKeyDown(KeyCode.R)) instBuildableObjects[buildingIndex].transform.localRotation *= Quaternion.Euler(0, 0, 90);
+            }
+
+            if (Input.GetButton("Fire1") && closestBuiltObjectToInstBuildableObject && instBuildableObjects[buildingIndex].transform.localPosition != closestBuiltObjectToInstBuildableObject.transform.localPosition && (instBuildableObjects[buildingIndex].transform.localPosition - closestBuiltObjectToInstBuildableObject.transform.localPosition).magnitude == multible)
+            {
+                instBuildableObjectCollider.enabled = true;
                 allObjects.Add(instBuildableObjects[buildingIndex]);
                 instBuildableObjects[buildingIndex] = null;
             }
@@ -175,6 +180,7 @@ public class PlayerController : MonoBehaviour
     {
         if (instBuildableObjects[buildingIndex]) Destroy(instBuildableObjects[buildingIndex]);
         buildingIndex = 0;
+        rotate = false;
         building = true;
     }
 
@@ -224,7 +230,7 @@ public class PlayerController : MonoBehaviour
         }
 
         return closest;
-    }
+    }                       //NOTE: Make another veresion of this that returns multible game objects if they are the same distance as the closest distance so that the player can swich between each one of those objects for the building rotation thingy
 
     private GameObject FindObjectInDistanceThatContains(GameObject fromObject, string contains, float distance)
     {
