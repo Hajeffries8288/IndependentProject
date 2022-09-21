@@ -207,12 +207,12 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 617706664}
         m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
-        m_MethodName: TractorBeemGenerator
-        m_Mode: 1
+        m_MethodName: SelectedObjectFromGUI
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 2
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -477,7 +477,6 @@ MonoBehaviour:
   - {fileID: 4077217966821539177, guid: 7422af2af92777041836e5b230a6e4d5, type: 3}
   - {fileID: 1469428807669936033, guid: ad85920373ff74c47ae29ba8662ecbc7, type: 3}
   - {fileID: 5959432368288220736, guid: 7b2df05c4c8a8304db9e2ab070df85f3, type: 3}
-  boxCollider: {fileID: 8155932307722905629, guid: 7422af2af92777041836e5b230a6e4d5, type: 3}
   objectGrabbedSpeed: 20
   resorces: 0
 --- !u!1 &851533392
@@ -564,15 +563,15 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 617706664}
         m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
-        m_MethodName: TestingObject
-        m_Mode: 1
+        m_MethodName: SelectedObjectFromGUI
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &851533395
 MonoBehaviour:
@@ -696,12 +695,12 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 617706664}
         m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
-        m_MethodName: Slope
-        m_Mode: 1
+        m_MethodName: SelectedObjectFromGUI
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 1
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0

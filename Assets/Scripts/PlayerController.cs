@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     GameObject[] instBuildableObjects;
     int buildingIndex;
     int FINDNAME;
+    bool autoRotate;
     bool rotate;
     bool building;
 
@@ -117,13 +118,12 @@ public class PlayerController : MonoBehaviour
             instBuildableObjects[buildingIndex].transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             instBuildableObjects[buildingIndex].transform.localPosition = new Vector3(Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.x / multible) * multible, Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.y / multible) * multible, 0);
 
-            GameObject closestBuiltObjectToInstBuildableObject = FindClosestObjectThatContains(instBuildableObjects[buildingIndex], "_Attach");
-
-            if (rotate)
+            if (autoRotate)
             {
-                GameObject[] objectsNextToInstBuildableObject = ObjectsNextToObject(instBuildableObjects[buildingIndex], "_Attach", 4);
+                GameObject[] objectsNextToInstBuildableObject = FindObjectsNextToObject(instBuildableObjects[buildingIndex], "_Attach", 4);
 
                 if (Input.GetKeyDown(KeyCode.R) && objectsNextToInstBuildableObject[FINDNAME] && FINDNAME < 4) FINDNAME++;
+                if (FINDNAME >= 4) FINDNAME = 0;
                 if (!objectsNextToInstBuildableObject[FINDNAME]) FINDNAME++;
                 if (FINDNAME >= 4) FINDNAME = 0;
 
@@ -135,6 +135,10 @@ public class PlayerController : MonoBehaviour
                     else if (objectsNextToInstBuildableObject[FINDNAME].transform.localPosition.y == instBuildableObjects[buildingIndex].transform.localPosition.y + 1) instBuildableObjects[buildingIndex].transform.localRotation = Quaternion.Euler(0, 0, 0);
                 }
             }
+
+            if (rotate && Input.GetKeyDown(KeyCode.R)) instBuildableObjects[buildingIndex].transform.localRotation *= Quaternion.Euler(0, 0, 90);
+
+            GameObject closestBuiltObjectToInstBuildableObject = FindClosestObjectThatContains(instBuildableObjects[buildingIndex], "_Attach");
 
             if (Input.GetButton("Fire1") && closestBuiltObjectToInstBuildableObject && instBuildableObjects[buildingIndex].transform.localPosition != closestBuiltObjectToInstBuildableObject.transform.localPosition && (instBuildableObjects[buildingIndex].transform.localPosition - closestBuiltObjectToInstBuildableObject.transform.localPosition).magnitude == multible)
             {
@@ -150,7 +154,7 @@ public class PlayerController : MonoBehaviour
                 building = false;
             }
         }
-    }
+    }               //TODO: This needs to be orginized as well as some small inprovements as well as it may need to be optimized if proformance/memory is suffering
 
     private void Debuging()
     {
@@ -186,31 +190,29 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //GUI BUTTONS: START
-    public void TestingObject()
+    public void SelectedObjectFromGUI(int objectSelectedIndex)
     {
         if (instBuildableObjects[buildingIndex]) Destroy(instBuildableObjects[buildingIndex]);
-        buildingIndex = 0;
-        rotate = false;
-        building = true;
-    }
+        buildingIndex = objectSelectedIndex;
 
-    public void Slope()
-    {
-        if (instBuildableObjects[buildingIndex]) Destroy(instBuildableObjects[buildingIndex]);
-        buildingIndex = 1;
-        rotate = true;
-        building = true;
-    }
+        if (buildingIndex == 0) //Square
+        {
+            rotate = false;
+            autoRotate = false;
+        }
+        if (buildingIndex == 1) //Slope
+        {
+            rotate = true;
+            autoRotate = false;
+        }
+        if (buildingIndex == 2) //Tractorbeem
+        {
+            rotate = false;
+            autoRotate = true;
+        }
 
-    public void TractorBeemGenerator()
-    {
-        if (instBuildableObjects[buildingIndex]) Destroy(instBuildableObjects[buildingIndex]);
-        buildingIndex = 2;
-        rotate = true;
         building = true;
     }
-    //GUI BUTTONS: END
 
     private GameObject FindClosestObjectThatContains(GameObject fromObject, string contains)
     {
@@ -243,7 +245,7 @@ public class PlayerController : MonoBehaviour
         return closest;
     }
 
-    private GameObject[] ObjectsNextToObject(GameObject fromObject, string contains, int ammountOfObjects)
+    private GameObject[] FindObjectsNextToObject(GameObject fromObject, string contains, int ammountOfObjects)
     {
         GameObject[] objectsToReturn = new GameObject[ammountOfObjects];
         List<GameObject> objectsThatContains = new List<GameObject>();
