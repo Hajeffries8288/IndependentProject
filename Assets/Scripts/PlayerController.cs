@@ -117,23 +117,26 @@ public class PlayerController : MonoBehaviour
             instBuildableObjects[buildingIndex].transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             instBuildableObjects[buildingIndex].transform.localPosition = new Vector3(Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.x / multible) * multible, Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.y / multible) * multible, 0);
 
-            GameObject[] closestBuiltObjectToInstBuildableObject = new GameObject[4];
-            closestBuiltObjectToInstBuildableObject = FindClosestObjectThatContainsArray(instBuildableObjects[buildingIndex], "_Attach", 4);
+            GameObject closestBuiltObjectToInstBuildableObject = FindClosestObjectThatContains(instBuildableObjects[buildingIndex], "_Attach");
 
             if (rotate)
             {
-                if (Input.GetKeyDown(KeyCode.R) && FINDNAME != 4) FINDNAME++;
-                else FINDNAME = 0;
+                GameObject[] objectsNextToInstBuildableObject = ObjectsNextToObject(instBuildableObjects[buildingIndex], "_Attach", 4);
 
-                print(closestBuiltObjectToInstBuildableObject[FINDNAME]);
+                if (Input.GetKeyDown(KeyCode.R) && objectsNextToInstBuildableObject[FINDNAME] && FINDNAME < 4) FINDNAME++;
+                if (!objectsNextToInstBuildableObject[FINDNAME]) FINDNAME++;
+                if (FINDNAME >= 4) FINDNAME = 0;
 
-                if (closestBuiltObjectToInstBuildableObject[FINDNAME].transform.localPosition.x == instBuildableObjects[buildingIndex].transform.localPosition.x - 1) instBuildableObjects[buildingIndex].transform.localRotation = Quaternion.Euler(0, 0, 90);
-                else if (closestBuiltObjectToInstBuildableObject[FINDNAME].transform.localPosition.x == instBuildableObjects[buildingIndex].transform.localPosition.x + 1) instBuildableObjects[buildingIndex].transform.localRotation = Quaternion.Euler(0, 0, -90);
-                else if (closestBuiltObjectToInstBuildableObject[FINDNAME].transform.localPosition.y == instBuildableObjects[buildingIndex].transform.localPosition.y - 1) instBuildableObjects[buildingIndex].transform.localRotation = Quaternion.Euler(0, 0, 180);
-                else if (closestBuiltObjectToInstBuildableObject[FINDNAME].transform.localPosition.y == instBuildableObjects[buildingIndex].transform.localPosition.y + 1) instBuildableObjects[buildingIndex].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                if (objectsNextToInstBuildableObject[FINDNAME] != null)
+                {
+                    if (objectsNextToInstBuildableObject[FINDNAME].transform.localPosition.x == instBuildableObjects[buildingIndex].transform.localPosition.x - 1) instBuildableObjects[buildingIndex].transform.localRotation = Quaternion.Euler(0, 0, 90);
+                    else if (objectsNextToInstBuildableObject[FINDNAME].transform.localPosition.x == instBuildableObjects[buildingIndex].transform.localPosition.x + 1) instBuildableObjects[buildingIndex].transform.localRotation = Quaternion.Euler(0, 0, -90);
+                    else if (objectsNextToInstBuildableObject[FINDNAME].transform.localPosition.y == instBuildableObjects[buildingIndex].transform.localPosition.y - 1) instBuildableObjects[buildingIndex].transform.localRotation = Quaternion.Euler(0, 0, 180);
+                    else if (objectsNextToInstBuildableObject[FINDNAME].transform.localPosition.y == instBuildableObjects[buildingIndex].transform.localPosition.y + 1) instBuildableObjects[buildingIndex].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                }
             }
 
-            if (Input.GetButton("Fire1") && closestBuiltObjectToInstBuildableObject[0] && instBuildableObjects[buildingIndex].transform.localPosition != closestBuiltObjectToInstBuildableObject[0].transform.localPosition && (instBuildableObjects[buildingIndex].transform.localPosition - closestBuiltObjectToInstBuildableObject[0].transform.localPosition).magnitude == multible)
+            if (Input.GetButton("Fire1") && closestBuiltObjectToInstBuildableObject && instBuildableObjects[buildingIndex].transform.localPosition != closestBuiltObjectToInstBuildableObject.transform.localPosition && (instBuildableObjects[buildingIndex].transform.localPosition - closestBuiltObjectToInstBuildableObject.transform.localPosition).magnitude == multible)
             {
                 instBuildableObjectCollider.enabled = true;
                 allObjects.Add(instBuildableObjects[buildingIndex]);
@@ -240,55 +243,29 @@ public class PlayerController : MonoBehaviour
         return closest;
     }
 
-    private GameObject[] FindClosestObjectThatContainsArray(GameObject fromObject, string contains, int arrayLength)
+    private GameObject[] ObjectsNextToObject(GameObject fromObject, string contains, int ammountOfObjects)
     {
-        GameObject[] closest = new GameObject[arrayLength];
-        for (int i = 0; i < arrayLength; i++) closest[i] = null;
+        GameObject[] objectsToReturn = new GameObject[ammountOfObjects];
+        List<GameObject> objectsThatContains = new List<GameObject>();
 
-        List<GameObject> objectThatContains = new List<GameObject>(0);
-        List<float> distances = new List<float>(0);
-        float[] closestF;
-        closestF = new float[arrayLength];
+        for (int i = 0; i < allObjects.Count; i++) if (allObjects[i].name.Contains(contains)) objectsThatContains.Add(allObjects[i]);
 
-        for (int i = 0; i < allObjects.Count; i++)
+        for (int i = 0; i < objectsThatContains.Count; i++)
         {
-            if (allObjects[i] != null)
+            if ((fromObject.transform.localPosition - objectsThatContains[i].transform.localPosition).magnitude == 1) //For testing
             {
-                if (allObjects[i].name.Contains(contains))
+                for (int j = 0; j < ammountOfObjects; j++)
                 {
-                    distances.Add((fromObject.transform.position - allObjects[i].transform.position).magnitude);
-                    objectThatContains.Add(allObjects[i]);
-                }
-            }
-        }
-        for (int i = 0; i < arrayLength; i++)
-        {
-            closestF[i] = Mathf.Min(distances.ToArray());
-            distances.Remove(closestF[i]);
-        }
-        for (int i = 0; i < objectThatContains.Count; i++)
-        {
-            if (objectThatContains[i] != null)
-            {
-                float distance = (fromObject.transform.position - objectThatContains[i].transform.position).magnitude;
-                for (int o = 0; o < arrayLength; o++)
-                {
-                    if (distance == closestF[o])
+                    if (objectsToReturn[j] == null)
                     {
-                        for (int j = 0; j < objectThatContains.Count; j++)
-                        {
-                            if (closest[o] == null)
-                            {
-                                closest[o] = objectThatContains[i];
-                                break;
-                            }
-                        }
+                        objectsToReturn[j] = objectsThatContains[i];
+                        break;
                     }
                 }
             }
         }
 
-        return closest;
+        return objectsToReturn;
     }
 
     private GameObject FindObjectInDistanceThatContains(GameObject fromObject, string contains, float distance)
