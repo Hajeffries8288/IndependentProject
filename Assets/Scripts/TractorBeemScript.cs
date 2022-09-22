@@ -34,7 +34,7 @@ public class TractorBeemScript : MonoBehaviour
                 Rigidbody2D rb = hit.transform.GetComponent<Rigidbody2D>();
 
                 rb.transform.parent = transform;
-                rb.velocity = ((transform.position - hit.transform.position) * velocityOfPickingUpAstroyid / hit.transform.localScale.x);
+                rb.velocity = ((hit.transform.position - transform.position) * velocityOfPickingUpAstroyid / hit.transform.localScale.x);
                 if ((transform.position - hit.transform.position).magnitude <= 1) Destroy(hit.transform.gameObject); //For testing
 
                 Debug.DrawLine(transform.position, hit.point, Color.red);
