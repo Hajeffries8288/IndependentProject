@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
 
     //Building
     [Header("Building")]
+    public static bool building;
     public float multible;
     public GameObject[] buildableObjects;
     GameObject[] instBuildableObjects;
@@ -21,7 +22,6 @@ public class PlayerController : MonoBehaviour
     int FINDNAME;
     bool autoRotate;
     bool rotate;
-    bool building;
 
     //Clicking
     

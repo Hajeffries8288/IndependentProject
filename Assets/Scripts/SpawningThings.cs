@@ -10,6 +10,7 @@ public class SpawningThings : MonoBehaviour
     [Header("Astroyids")]
     [HideInInspector] public static List<GameObject> astroyidsCreated;
     public float distanceToSpawnAstroyids;
+    public float distanceFromShipForDespawn;
     public float astroyidMaximumSize;
     public float astroyidMaximumVelocity;
     public float maximumTimeTellNextCheckForAstroyid;
@@ -21,7 +22,6 @@ public class SpawningThings : MonoBehaviour
     bool createAstroyid;
 
     //Misc
-    public float distanceFromShipForDespawn;
     bool[] coroutineStart;
 
     // Start is called before the first frame update
