@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5804102555780953149}
   - component: {fileID: 5154380911467353527}
   m_Layer: 0
-  m_Name: Astroyids_Collectable_Physics
+  m_Name: Astroyids_Collectable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

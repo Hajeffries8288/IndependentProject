@@ -4,60 +4,103 @@ using UnityEngine;
 
 public class TractorBeemScript : MonoBehaviour
 {
+    //DebuggingPhysics
     public float velocityOfPickingUpAstroyid;       //Change this name when you have the chance
-    GameObject ship;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        ship = GameObject.Find("Ship");
-    }
+    //Raycast
+    public float distanceToPickUpAstroyid;
+    RaycastHit2D hit;
 
-    // Update is called once per frame
-    void Update()
+    //Misc
+    [HideInInspector] public static List<GameObject> allObjects;
+
+    private void Start()
     {
-        
+        allObjects = new List<GameObject>(FindObjectsOfType<GameObject>());
     }
 
     private void FixedUpdate()
     {
         DebugingPhysics();
+        TractorBeem();
     }
 
     private void DebugingPhysics()
     {
-        //Figure out how to get this to be the correct rotation because transform.localRotation does not equal the actual rotation;
-        var testoWesto = GetComponent<ParticleSystem>().main;
-        //testoWesto.startRotationMultiplier = transform.localRotation.z;
-        testoWesto.startRotationZ = transform.localRotation.z * Mathf.Rad2Deg * Mathf.Deg2Rad;
+        if (GetComponent<BoxCollider2D>().enabled && hit && hit.transform.name.Contains("Astroyids")) Debug.DrawLine(transform.position, hit.point, Color.red);
+    }
 
-        if (!PlayerController.building)
+    private void TractorBeem()
+    {
+        //You have to have this variable because I guess its a bich
+        var particleSystemMain = GetComponent<ParticleSystem>().main;
+        particleSystemMain.startRotationZ = transform.localRotation.z * Mathf.Deg2Rad; //This isnt the correct rotation figgure this out NOTE: This is for the rotation of the particles so its not the most importent thing
+
+        GameObject closestAstroyid = FindClosestObjectThatContains(gameObject, "Astroyids");
+        Animator animator = GetComponent<Animator>();
+        ParticleSystem particleSystem = GetComponent<ParticleSystem>();
+
+        if (GetComponent<BoxCollider2D>().enabled)
         {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, -transform.up, Mathf.Infinity, 1 << 0, -Mathf.Infinity, Mathf.Infinity);
+            if (closestAstroyid && (transform.position - closestAstroyid.transform.position).magnitude <= distanceToPickUpAstroyid) hit = Physics2D.Raycast(transform.position, -transform.up, distanceToPickUpAstroyid, 1 << 0, -Mathf.Infinity, Mathf.Infinity);
 
             if (hit && hit.transform.name.Contains("Astroyids"))
             {
                 Rigidbody2D rb = hit.transform.GetComponent<Rigidbody2D>();
 
-                rb.velocity = ((transform.position - hit.transform.position) * velocityOfPickingUpAstroyid / hit.transform.localScale.x);
+                rb.velocity = (transform.position - hit.transform.position) * velocityOfPickingUpAstroyid / hit.transform.localScale.x;
                 rb.angularVelocity = 0;
-                GetComponent<Animator>().SetBool("Off/On", true);
-                GetComponent<ParticleSystem>().Play();
-                if ((transform.position - hit.transform.position).magnitude <= 1) Destroy(hit.transform.gameObject); //For testing
+                animator.SetBool("Off/On", true);
+                particleSystem.Play();
 
-                Debug.DrawLine(transform.position, hit.point, Color.red);
+                if ((transform.position - hit.transform.position).magnitude <= 1)
+                {
+                    Destroy(hit.transform.gameObject);
+                    allObjects.Remove(hit.transform.gameObject);
+                }
             }
             else
             {
-                GetComponent<Animator>().SetBool("Off/On", false);
-                GetComponent<ParticleSystem>().Pause();
-                GetComponent<ParticleSystem>().Clear();
+                animator.SetBool("Off/On", false);
+                particleSystem.Pause();
+                particleSystem.Clear();
             }
         }
         else
         {
-            GetComponent<ParticleSystem>().Pause();
-            GetComponent<ParticleSystem>().Clear();
+            particleSystem.Pause();
+            particleSystem.Clear();
         }
+    }
+
+    private GameObject FindClosestObjectThatContains(GameObject fromObject, string contains)
+    {
+        GameObject closest = null;
+        List<GameObject> objectThatContains = new List<GameObject>(0);
+        List<float> distances = new List<float>(0);
+        float closestF;
+
+        for (int i = 0; i < allObjects.Count; i++)
+        {
+            if (allObjects[i] != null)
+            {
+                if (allObjects[i].name.Contains(contains))
+                {
+                    distances.Add((fromObject.transform.position - allObjects[i].transform.position).magnitude);
+                    objectThatContains.Add(allObjects[i]);
+                }
+            }
+        }
+        closestF = Mathf.Min(distances.ToArray());
+        for (int i = 0; i < objectThatContains.Count; i++)
+        {
+            if (objectThatContains[i] != null)
+            {
+                float distance = (fromObject.transform.position - objectThatContains[i].transform.position).magnitude;
+                if (distance == closestF) closest = objectThatContains[i];
+            }
+        }
+
+        return closest;
     }
 }

@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
     public float speed;
     public float shiftSpeed;
     public float maxZoomOut;
+    GameObject ship;
     float mouseScroll;
     Camera mainCamera;
 
@@ -28,19 +29,15 @@ public class PlayerController : MonoBehaviour
 
     //Debuging
     [Header("Debuging")]
-    public float objectGrabbedSpeed;
-    GameObject objectGrabbed;
-    GameObject ship;
-
     List<GameObject> allObjects;
-
-    public float resorces;
 
     // Start is called before the first frame update
     void Start()
     {
         //Movement
-        
+        mouseScroll = 5;
+        ship = GameObject.Find("Ship");
+
         //Building
         instBuildableObjects = new GameObject[buildableObjects.Length];
 
@@ -49,9 +46,8 @@ public class PlayerController : MonoBehaviour
 
         //Debuging
         mainCamera = Camera.main;
+
         allObjects = new List<GameObject>(FindObjectsOfType<GameObject>());
-        ship = GameObject.Find("Ship");
-        mouseScroll = 5;
     }
 
     // Update is called once per frame
@@ -165,29 +161,17 @@ public class PlayerController : MonoBehaviour
             RaycastHit2D hit2D = Physics2D.GetRayIntersection(mousePosition, Mathf.Infinity, 1 << 0);
             if (hit2D) print("Player Clicked " + hit2D.collider.name);
         }
+
+        //Mouse movement
+        if (Input.GetButton("Fire3"))
+        {
+            //Make mouse code after disnyland or make the way it would work aka come up with ideas for how it will work at disnyland.
+        }
     }
 
     private void DebugingPhysics()
     {
-        //GrabingStuff
-        if (Input.GetButton("Fire1"))
-        {
-            Ray mousePosition = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit2D = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition));
-
-            if (hit2D.collider && !objectGrabbed) objectGrabbed = hit2D.transform.gameObject;
-
-            if (objectGrabbed)
-            {
-                if (objectGrabbed.name.Contains("_Physics"))
-                {
-                    Rigidbody2D objectGrabbedRigidbody = objectGrabbed.GetComponent<Rigidbody2D>();
-
-                    objectGrabbedRigidbody.velocity = Vector2.zero;
-                    objectGrabbedRigidbody.MovePosition(new Vector3(Mathf.Lerp(objectGrabbed.transform.position.x, mousePosition.origin.x, objectGrabbedSpeed * Time.fixedDeltaTime), Mathf.Lerp(objectGrabbed.transform.position.y, mousePosition.origin.y, objectGrabbedSpeed * Time.fixedDeltaTime), 0));
-                }
-            }
-        }
+        
     }
 
     public void SelectedObjectFromGUI(int objectSelectedIndex)
