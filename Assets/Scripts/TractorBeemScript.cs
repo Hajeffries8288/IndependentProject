@@ -12,11 +12,11 @@ public class TractorBeemScript : MonoBehaviour
     RaycastHit2D hit;
 
     //Misc
-    [HideInInspector] public static List<GameObject> allObjects;
+    //List<GameObject> allObjects;
 
     private void Start()
     {
-        allObjects = new List<GameObject>(FindObjectsOfType<GameObject>());
+        //allObjects = PlayerController.allObjects;
     }
 
     private void FixedUpdate()
@@ -56,7 +56,7 @@ public class TractorBeemScript : MonoBehaviour
                 if ((transform.position - hit.transform.position).magnitude <= 1)
                 {
                     Destroy(hit.transform.gameObject);
-                    allObjects.Remove(hit.transform.gameObject);
+                    PlayerController.allObjects.Remove(hit.transform.gameObject);
                 }
             }
             else
@@ -80,14 +80,14 @@ public class TractorBeemScript : MonoBehaviour
         List<float> distances = new List<float>(0);
         float closestF;
 
-        for (int i = 0; i < allObjects.Count; i++)
+        for (int i = 0; i < PlayerController.allObjects.Count; i++)
         {
-            if (allObjects[i] != null)
+            if (PlayerController.allObjects[i] != null)
             {
-                if (allObjects[i].name.Contains(contains))
+                if (PlayerController.allObjects[i].name.Contains(contains))
                 {
-                    distances.Add((fromObject.transform.position - allObjects[i].transform.position).magnitude);
-                    objectThatContains.Add(allObjects[i]);
+                    distances.Add((fromObject.transform.position - PlayerController.allObjects[i].transform.position).magnitude);
+                    objectThatContains.Add(PlayerController.allObjects[i]);
                 }
             }
         }

@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 8310630795854792075}
   - component: {fileID: 5423747225515184483}
   m_Layer: 2
-  m_Name: TractorBeem_Attach
+  m_Name: TractorBeem_Tile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

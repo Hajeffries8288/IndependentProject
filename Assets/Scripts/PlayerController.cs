@@ -18,9 +18,9 @@ public class PlayerController : MonoBehaviour
     public static bool building;
     public float multible;
     public GameObject[] buildableObjects;
-    GameObject[] instBuildableObjects;
+    GameObject buildingTile;
     int buildingIndex;
-    int FINDNAME;
+    int tilesNextToObjectBuildingIndex;
     bool autoRotate;
     bool rotate;
 
@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour
 
     //Debuging
     [Header("Debuging")]
-    List<GameObject> allObjects;
+    [HideInInspector] public static List<GameObject> allObjects;
 
     // Start is called before the first frame update
     void Start()
@@ -39,7 +39,7 @@ public class PlayerController : MonoBehaviour
         ship = GameObject.Find("Ship");
 
         //Building
-        instBuildableObjects = new GameObject[buildableObjects.Length];
+        
 
         //Clicking
 
@@ -107,50 +107,52 @@ public class PlayerController : MonoBehaviour
     {
         if (building)
         {
-            if (!instBuildableObjects[buildingIndex]) instBuildableObjects[buildingIndex] = Instantiate(buildableObjects[buildingIndex], ship.transform);
-            Collider2D instBuildableObjectCollider = instBuildableObjects[buildingIndex].GetComponent<Collider2D>();
+            if (!buildingTile) buildingTile = Instantiate(buildableObjects[buildingIndex], ship.transform);
+            Collider2D tileBuildingCollider = buildingTile.GetComponent<Collider2D>();
 
-            instBuildableObjectCollider.enabled = false;
-            instBuildableObjects[buildingIndex].transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            instBuildableObjects[buildingIndex].transform.localPosition = new Vector3(Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.x / multible) * multible, Mathf.Round(instBuildableObjects[buildingIndex].transform.localPosition.y / multible) * multible, 0);
+            tileBuildingCollider.enabled = false;
+            buildingTile.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            buildingTile.transform.localPosition = new Vector3(Mathf.Round(buildingTile.transform.localPosition.x / multible) * multible, Mathf.Round(buildingTile.transform.localPosition.y / multible) * multible, 0);
 
             if (autoRotate)
             {
-                GameObject[] objectsNextToInstBuildableObject = FindObjectsNextToObject(instBuildableObjects[buildingIndex], "_Attach", 4);
+                GameObject[] tilesNextToTileBuilding = FindObjectsNextToObject(buildingTile, "_Attach", 4);
 
-                if (Input.GetKeyDown(KeyCode.R) && objectsNextToInstBuildableObject[FINDNAME] && FINDNAME < 4) FINDNAME++;
-                if (FINDNAME >= 4) FINDNAME = 0;
-                if (!objectsNextToInstBuildableObject[FINDNAME]) FINDNAME++;
-                if (FINDNAME >= 4) FINDNAME = 0;
+                if (Input.GetKeyDown(KeyCode.R) && tilesNextToTileBuilding[tilesNextToObjectBuildingIndex] && tilesNextToObjectBuildingIndex < 4) tilesNextToObjectBuildingIndex++;
+                if (tilesNextToObjectBuildingIndex >= 4) tilesNextToObjectBuildingIndex = 0;
+                if (!tilesNextToTileBuilding[tilesNextToObjectBuildingIndex]) tilesNextToObjectBuildingIndex++;
+                if (tilesNextToObjectBuildingIndex >= 4) tilesNextToObjectBuildingIndex = 0;
 
-                if (objectsNextToInstBuildableObject[FINDNAME] != null)
+                if (tilesNextToTileBuilding[tilesNextToObjectBuildingIndex] != null)
                 {
-                    if (objectsNextToInstBuildableObject[FINDNAME].transform.localPosition.x == instBuildableObjects[buildingIndex].transform.localPosition.x - 1) instBuildableObjects[buildingIndex].transform.localRotation = Quaternion.Euler(0, 0, 90);
-                    else if (objectsNextToInstBuildableObject[FINDNAME].transform.localPosition.x == instBuildableObjects[buildingIndex].transform.localPosition.x + 1) instBuildableObjects[buildingIndex].transform.localRotation = Quaternion.Euler(0, 0, -90);
-                    else if (objectsNextToInstBuildableObject[FINDNAME].transform.localPosition.y == instBuildableObjects[buildingIndex].transform.localPosition.y - 1) instBuildableObjects[buildingIndex].transform.localRotation = Quaternion.Euler(0, 0, 180);
-                    else if (objectsNextToInstBuildableObject[FINDNAME].transform.localPosition.y == instBuildableObjects[buildingIndex].transform.localPosition.y + 1) instBuildableObjects[buildingIndex].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                    if (tilesNextToTileBuilding[tilesNextToObjectBuildingIndex].transform.localPosition.x == buildingTile.transform.localPosition.x - 1) buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 90);
+                    else if (tilesNextToTileBuilding[tilesNextToObjectBuildingIndex].transform.localPosition.x == buildingTile.transform.localPosition.x + 1) buildingTile.transform.localRotation = Quaternion.Euler(0, 0, -90);
+                    else if (tilesNextToTileBuilding[tilesNextToObjectBuildingIndex].transform.localPosition.y == buildingTile.transform.localPosition.y - 1) buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 180);
+                    else if (tilesNextToTileBuilding[tilesNextToObjectBuildingIndex].transform.localPosition.y == buildingTile.transform.localPosition.y + 1) buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 0);
                 }
             }
 
-            if (rotate && Input.GetKeyDown(KeyCode.R)) instBuildableObjects[buildingIndex].transform.localRotation *= Quaternion.Euler(0, 0, 90);
+            if (rotate && Input.GetKeyDown(KeyCode.R)) buildingTile.transform.localRotation *= Quaternion.Euler(0, 0, 90);
 
-            GameObject closestBuiltObjectToInstBuildableObject = FindClosestObjectThatContains(instBuildableObjects[buildingIndex], "_Tile");
+            GameObject closestTileObjectToInstBuildableObjectAttach = FindClosestObjectThatContains(buildingTile, "_Attach");
+            GameObject closestTileObjectToInstBuildableObject = FindClosestObjectThatContains(buildingTile, "_Tile");
 
-            if (Input.GetButton("Fire1") && closestBuiltObjectToInstBuildableObject && instBuildableObjects[buildingIndex].transform.localPosition != closestBuiltObjectToInstBuildableObject.transform.localPosition && (instBuildableObjects[buildingIndex].transform.localPosition - closestBuiltObjectToInstBuildableObject.transform.localPosition).magnitude == multible)
+            if (Input.GetButton("Fire1") && closestTileObjectToInstBuildableObjectAttach && closestTileObjectToInstBuildableObject && buildingTile.transform.localPosition != closestTileObjectToInstBuildableObject.transform.localPosition && (buildingTile.transform.localPosition - closestTileObjectToInstBuildableObjectAttach.transform.localPosition).magnitude == multible)
             {
-                instBuildableObjectCollider.enabled = true;
-                allObjects.Add(instBuildableObjects[buildingIndex]);
-                instBuildableObjects[buildingIndex] = null;
+                tileBuildingCollider.enabled = true;
+                allObjects.Add(buildingTile);
+                buildingTile = null;
             }
             if (Input.GetButtonUp("Fire2"))
             {
-                Destroy(instBuildableObjects[buildingIndex].gameObject);
-                instBuildableObjects[buildingIndex] = null;
+                Destroy(buildingTile.gameObject);
+                buildingTile = null;
+                autoRotate = false;
                 rotate = false;
                 building = false;
             }
         }
-    }               //TODO: This needs to be orginized as well as some small inprovements as well as it may need to be optimized if proformance/memory is suffering
+    }               //NOTE: This may cause poor memory use fix if needed
 
     private void Debuging()
     {
@@ -176,7 +178,7 @@ public class PlayerController : MonoBehaviour
 
     public void SelectedObjectFromGUI(int objectSelectedIndex)
     {
-        if (instBuildableObjects[buildingIndex]) Destroy(instBuildableObjects[buildingIndex]);
+        if (buildingTile) Destroy(buildingTile);
         buildingIndex = objectSelectedIndex;
 
         if (buildingIndex == 0) //Square
@@ -234,7 +236,11 @@ public class PlayerController : MonoBehaviour
         GameObject[] objectsToReturn = new GameObject[ammountOfObjects];
         List<GameObject> objectsThatContains = new List<GameObject>();
 
-        for (int i = 0; i < allObjects.Count; i++) if (allObjects[i].name.Contains(contains)) objectsThatContains.Add(allObjects[i]);
+        for (int i = 0; i < allObjects.Count; i++)
+        {
+            if (allObjects[i] && allObjects[i].name.Contains(contains)) objectsThatContains.Add(allObjects[i]);
+            else if (!allObjects[i]) allObjects.RemoveAt(i);
+        }
 
         for (int i = 0; i < objectsThatContains.Count; i++)
         {

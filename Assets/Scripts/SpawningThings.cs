@@ -47,7 +47,7 @@ public class SpawningThings : MonoBehaviour
             float scale = Random.Range(0.1f, astroyidMaximumSize);
             scale = Mathf.Clamp(scale, 0.1f, astroyidMaximumSize);
             GameObject instAstroyid = Instantiate(astroid, transform);
-            TractorBeemScript.allObjects.Add(instAstroyid);
+            PlayerController.allObjects.Add(instAstroyid);
             Rigidbody2D instAstroyidRigidbody = instAstroyid.GetComponent<Rigidbody2D>();
 
             //Astroyids proporties
