@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
     int tilesNextToObjectBuildingIndex;
     bool autoRotate;
     bool rotate;
+    bool destroy;
 
     //Clicking
     
@@ -110,7 +111,7 @@ public class PlayerController : MonoBehaviour
             if (!buildingTile) buildingTile = Instantiate(buildableObjects[buildingIndex], ship.transform);
             Collider2D tileBuildingCollider = buildingTile.GetComponent<Collider2D>();
 
-            tileBuildingCollider.enabled = false;
+            if (tileBuildingCollider) tileBuildingCollider.enabled = false;
             buildingTile.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             buildingTile.transform.localPosition = new Vector3(Mathf.Round(buildingTile.transform.localPosition.x / multible) * multible, Mathf.Round(buildingTile.transform.localPosition.y / multible) * multible, 0);
 
@@ -137,12 +138,18 @@ public class PlayerController : MonoBehaviour
             GameObject closestTileObjectToInstBuildableObjectAttach = FindClosestObjectThatContains(buildingTile, "_Attach");
             GameObject closestTileObjectToInstBuildableObject = FindClosestObjectThatContains(buildingTile, "_Tile");
 
-            if (Input.GetButton("Fire1") && closestTileObjectToInstBuildableObjectAttach && closestTileObjectToInstBuildableObject && buildingTile.transform.localPosition != closestTileObjectToInstBuildableObject.transform.localPosition && (buildingTile.transform.localPosition - closestTileObjectToInstBuildableObjectAttach.transform.localPosition).magnitude == multible)
+            if (!destroy && Input.GetButton("Fire1") && closestTileObjectToInstBuildableObjectAttach && closestTileObjectToInstBuildableObject && buildingTile.transform.localPosition != closestTileObjectToInstBuildableObject.transform.localPosition && (buildingTile.transform.localPosition - closestTileObjectToInstBuildableObjectAttach.transform.localPosition).magnitude == multible)
             {
                 tileBuildingCollider.enabled = true;
                 allObjects.Add(buildingTile);
                 buildingTile = null;
             }
+            else if (destroy && Input.GetButtonDown("Fire1") && closestTileObjectToInstBuildableObject && buildingTile.transform.localPosition == closestTileObjectToInstBuildableObject.transform.localPosition)
+            {
+                allObjects.Remove(closestTileObjectToInstBuildableObject);
+                Destroy(closestTileObjectToInstBuildableObject);
+            }
+
             if (Input.GetButtonUp("Fire2"))
             {
                 Destroy(buildingTile.gameObject);
@@ -152,7 +159,7 @@ public class PlayerController : MonoBehaviour
                 building = false;
             }
         }
-    }               //NOTE: This may cause poor memory use fix if needed
+    }               //NOTE: This may cause poor memory find fix if needed
 
     private void Debuging()
     {
@@ -183,18 +190,27 @@ public class PlayerController : MonoBehaviour
 
         if (buildingIndex == 0) //Square
         {
+            destroy = false;
             rotate = false;
             autoRotate = false;
         }
         if (buildingIndex == 1) //Slope
         {
+            destroy = false;
             rotate = true;
             autoRotate = false;
         }
         if (buildingIndex == 2) //Tractorbeem
         {
+            destroy = false;
             rotate = false;
             autoRotate = true;
+        }
+        if (buildingIndex == 3) //Destroying placed objects
+        {
+            destroy = true;
+            rotate = false;
+            autoRotate = false;
         }
 
         building = true;
