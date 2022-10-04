@@ -140,7 +140,7 @@ public class PlayerController : MonoBehaviour
 
             if (!destroy && Input.GetButton("Fire1") && closestTileObjectToInstBuildableObjectAttach && closestTileObjectToInstBuildableObject && buildingTile.transform.localPosition != closestTileObjectToInstBuildableObject.transform.localPosition && (buildingTile.transform.localPosition - closestTileObjectToInstBuildableObjectAttach.transform.localPosition).magnitude == multible)
             {
-                tileBuildingCollider.enabled = true;
+                if (tileBuildingCollider) tileBuildingCollider.enabled = true;
                 allObjects.Add(buildingTile);
                 buildingTile = null;
             }
@@ -157,6 +157,7 @@ public class PlayerController : MonoBehaviour
                 autoRotate = false;
                 rotate = false;
                 building = false;
+                destroy = false;
             }
         }
     }               //NOTE: This may cause poor memory find fix if needed
@@ -211,6 +212,12 @@ public class PlayerController : MonoBehaviour
             destroy = true;
             rotate = false;
             autoRotate = false;
+        }
+        if (buildingIndex == 4) //Connector
+        {
+            destroy = false;
+            rotate = false;
+            autoRotate = true;
         }
 
         building = true;
