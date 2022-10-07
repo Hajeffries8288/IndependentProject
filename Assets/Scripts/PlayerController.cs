@@ -177,6 +177,14 @@ public class PlayerController : MonoBehaviour
         {
             //Make mouse code after disnyland or make the way it would work aka come up with ideas for how it will work at disnyland.
         }
+
+        for (int i = 0; i < allObjects.Count; i++)
+        {
+            if (allObjects[i].name.Contains("_Attach"))
+            {
+                DebuggingCanReach(allObjects[i], "ShipCore", "_Attach");
+            }
+        }
     }
 
     private void DebugingPhysics()
@@ -294,5 +302,58 @@ public class PlayerController : MonoBehaviour
         }
 
         return objectThatContains;
+    }
+
+    private bool DebuggingCanReach(GameObject fromObject, string toObject, string walkOn)
+    {
+        bool atObj = false;
+        bool stopWhile = false;
+        int failSafe = 0;
+
+        while (!stopWhile)
+        {
+            GameObject[] nextTo = FindObjectsNextToObject(fromObject, walkOn, 4);
+            GameObject lastObj = null;
+
+            bool contains;
+            bool contains1;
+            bool FINDNAME;
+
+            for (int i = 0; i < nextTo.Length; i++)
+            {
+                if (nextTo[i])
+                {
+                    contains = nextTo[i].name.Contains(walkOn);
+                    contains1 = nextTo[i].name.Contains(toObject);
+                    FINDNAME = nextTo[i] != lastObj;
+
+                    if (contains && FINDNAME)
+                    {
+                        if (lastObj) lastObj = fromObject;
+                        else lastObj = fromObject;
+
+                        fromObject = nextTo[i];
+                    }
+                    if (contains1)          //This wount work figure out why past you playing minecraft
+                    {
+                        atObj = true;
+                        stopWhile = true;
+                        print("TestoWesto");
+                        fromObject = nextTo[i];
+                    }
+                    if (!contains || !contains1) stopWhile = true;
+                }
+            }
+
+            failSafe++;
+            if (failSafe == 500)
+            {
+                stopWhile = true;
+                Debug.LogWarning("Infinite loop detected");
+            }
+            if (fromObject && lastObj) Debug.DrawLine(fromObject.transform.position, lastObj.transform.position, Color.red);
+        }
+        
+        return atObj;
     }
 }

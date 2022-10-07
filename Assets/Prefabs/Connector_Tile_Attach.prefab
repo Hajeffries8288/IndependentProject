@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8079729387321227967}
   - component: {fileID: -5537997937384578967}
   m_Layer: 0
-  m_Name: Connector_Tile
+  m_Name: Connector_Tile_Attach
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
