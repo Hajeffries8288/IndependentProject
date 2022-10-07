@@ -325,7 +325,9 @@ public class PlayerController : MonoBehaviour
                 {
                     contains = nextTo[i].name.Contains(walkOn);
                     contains1 = nextTo[i].name.Contains(toObject);
-                    FINDNAME = nextTo[i] != lastObj;
+                    FINDNAME = nextTo[i] != lastObj;            //This is what might be causeing the problem AKA This line of code isnt working
+
+                    if (FINDNAME) print("TestoWesto");
 
                     if (contains && FINDNAME)
                     {
@@ -334,11 +336,11 @@ public class PlayerController : MonoBehaviour
 
                         fromObject = nextTo[i];
                     }
-                    if (contains1)          //This wount work figure out why past you playing minecraft
+                    if (contains1)
                     {
                         atObj = true;
                         stopWhile = true;
-                        print("TestoWesto");
+
                         fromObject = nextTo[i];
                     }
                     if (!contains || !contains1) stopWhile = true;
@@ -351,7 +353,8 @@ public class PlayerController : MonoBehaviour
                 stopWhile = true;
                 Debug.LogWarning("Infinite loop detected");
             }
-            if (fromObject && lastObj) Debug.DrawLine(fromObject.transform.position, lastObj.transform.position, Color.red);
+            if (fromObject && lastObj && !atObj) Debug.DrawLine(fromObject.transform.position, lastObj.transform.position, Color.red);
+            if (atObj) Debug.DrawLine(fromObject.transform.position, lastObj.transform.position, Color.green);
         }
         
         return atObj;

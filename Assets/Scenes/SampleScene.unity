@@ -1700,7 +1700,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1595933066241415196, guid: e94134bd644d57f4686e9f76661256fd, type: 3}
       propertyPath: m_Name
-      value: ShipCore
+      value: ShipCore_Attach
       objectReference: {fileID: 0}
     - target: {fileID: 8589679272048943386, guid: e94134bd644d57f4686e9f76661256fd, type: 3}
       propertyPath: m_RootOrder
