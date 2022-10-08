@@ -32,6 +32,8 @@ public class PlayerController : MonoBehaviour
     [Header("Debuging")]
     [HideInInspector] public static List<GameObject> allObjects;
 
+    bool infiniteLoopShutOff;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -178,14 +180,15 @@ public class PlayerController : MonoBehaviour
             //Make mouse code after disnyland or make the way it would work aka come up with ideas for how it will work at disnyland.
         }
 
-        for (int i = 0; i < allObjects.Count; i++)
-        {
-            if (allObjects[i].name.Contains("_Attach"))
-            {
-                bool boolToPrint = DebuggingCanReach(allObjects[i], "ShipCore", "_Attach");
-                print(allObjects[i].name + " = " + boolToPrint);
-            }
-        }
+        //for (int i = 0; i < allObjects.Count; i++)
+        //{
+            //if (allObjects[i].name.Contains("_Attach"))
+            //{
+                //DebuggingCanReach("ShipCore", "_Attach");
+            //}
+        //}
+
+        DebuggingCanReach("ShipCore", "_Attach");
     }
 
     private void DebugingPhysics()
@@ -305,13 +308,82 @@ public class PlayerController : MonoBehaviour
         return objectThatContains;
     }
 
-    private void DebuggingCanReach(string toObject, string walkOn)
+    private void DebuggingCanReach(string toObject, string walkOn)      //Stop the infinite loop and all that jazz
     {
-        List<GameObject> objectsBeenAt;
-        GameObject[] nextTo = FindObjectsNextToObject(gameObject, walkOn, 4);
-        GameObject nextObject;
+        List<GameObject> objectsBeenAt = new List<GameObject>();
+        GameObject currentObject = GameObject.Find("TestingBlock_Tile_Attach (6)");
+        GameObject[] nextTo = FindObjectsNextToObject(currentObject, walkOn, 4);
+        GameObject nextObject = null;
+        bool newObject = true;
+        int failSafe = 0;
 
-        for (int i = 0; i < nextTo.Length; i++) if (nextTo[i].name.Contains(walkOn)) nextObject = nextTo[i];
+        for (int i = 0; i < nextTo.Length; i++)
+        {
+            newObject = true;
+
+            for (int j = 0; j < objectsBeenAt.Count; j++)
+            {
+                if (nextTo[i] != objectsBeenAt[j]) newObject = true;
+                else newObject = false;
+            }
+
+            if (nextTo[i] && nextTo[i].name.Contains(walkOn) && newObject)
+            {
+                nextObject = nextTo[i];
+                objectsBeenAt.Add(currentObject);
+                currentObject = nextObject;
+                break;
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Home))
+        {
+            print("_______________________");
+            for (int i = 0; i < objectsBeenAt.Count; i++) print("ObjectsBeenAt[" + i + "] = " + objectsBeenAt[i]);
+            print("CurrentObject = " + currentObject);
+        }
+
+        if (nextObject && !infiniteLoopShutOff)
+        {
+            while (currentObject != null)
+            {
+                failSafe++;
+                nextTo = FindObjectsNextToObject(currentObject, walkOn, 4);
+
+                for (int i = 0; i < nextTo.Length; i++)
+                {
+                    if (nextTo[i])
+                    {
+                        if (nextTo[i].name.Contains(walkOn) && InListGameObject(nextTo[i], objectsBeenAt))
+                        {
+                            nextObject = nextTo[i];
+                            objectsBeenAt.Add(currentObject);
+                            currentObject = nextObject;
+                            break;
+                        }
+                    }
+                }
+
+                if (failSafe == 500)
+                {
+                    Debug.LogWarning("Infinite loop detected!");
+                    infiniteLoopShutOff = true;
+                    break;
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.Home))
+            {
+                print("_______________________");
+                for (int i = 0; i < objectsBeenAt.Count; i++) print("ObjectsBeenAt[" + i + "] = " + objectsBeenAt[i]);
+                print("CurrentObject = " + currentObject);
+            }
+
+            for (int i = 0; i < objectsBeenAt.Count; i++)
+            {
+                if (i + 1 < objectsBeenAt.Count && objectsBeenAt[i] && objectsBeenAt[i + 1]) Debug.DrawLine(objectsBeenAt[i].transform.position, objectsBeenAt[i + 1].transform.position, Color.red);
+            }
+        }
 
 
 
@@ -372,4 +444,13 @@ public class PlayerController : MonoBehaviour
 
         //return atObj;
     }
+
+    private bool InListGameObject(GameObject checkFor, List<GameObject> list)
+    {
+        bool boolToReturn = false;
+
+        for (int i = 0; i < list.Count; i++) if (checkFor == list[i]) boolToReturn = true;
+
+        return boolToReturn;
+    }       //Rename this!
 }
