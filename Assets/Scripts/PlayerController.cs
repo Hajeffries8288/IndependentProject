@@ -182,7 +182,8 @@ public class PlayerController : MonoBehaviour
         {
             if (allObjects[i].name.Contains("_Attach"))
             {
-                DebuggingCanReach(allObjects[i], "ShipCore", "_Attach");
+                bool boolToPrint = DebuggingCanReach(allObjects[i], "ShipCore", "_Attach");
+                print(allObjects[i].name + " = " + boolToPrint);
             }
         }
     }
@@ -304,59 +305,71 @@ public class PlayerController : MonoBehaviour
         return objectThatContains;
     }
 
-    private bool DebuggingCanReach(GameObject fromObject, string toObject, string walkOn)
+    private void DebuggingCanReach(string toObject, string walkOn)
     {
-        bool atObj = false;
-        bool stopWhile = false;
-        int failSafe = 0;
+        List<GameObject> objectsBeenAt;
+        GameObject[] nextTo = FindObjectsNextToObject(gameObject, walkOn, 4);
+        GameObject nextObject;
 
-        while (!stopWhile)
-        {
-            GameObject[] nextTo = FindObjectsNextToObject(fromObject, walkOn, 4);
-            GameObject lastObj = null;
+        for (int i = 0; i < nextTo.Length; i++) if (nextTo[i].name.Contains(walkOn)) nextObject = nextTo[i];
 
-            bool contains;
-            bool contains1;
-            bool FINDNAME;
 
-            for (int i = 0; i < nextTo.Length; i++)
-            {
-                if (nextTo[i])
-                {
-                    contains = nextTo[i].name.Contains(walkOn);
-                    contains1 = nextTo[i].name.Contains(toObject);
-                    FINDNAME = nextTo[i] != lastObj;            //This is what might be causeing the problem AKA This line of code isnt working
 
-                    if (FINDNAME) print("TestoWesto");
 
-                    if (contains && FINDNAME)
-                    {
-                        if (lastObj) lastObj = fromObject;
-                        else lastObj = fromObject;
 
-                        fromObject = nextTo[i];
-                    }
-                    if (contains1)
-                    {
-                        atObj = true;
-                        stopWhile = true;
 
-                        fromObject = nextTo[i];
-                    }
-                    if (!contains || !contains1) stopWhile = true;
-                }
-            }
 
-            failSafe++;
-            if (failSafe == 500)
-            {
-                stopWhile = true;
-                Debug.LogWarning("Infinite loop detected");
-            }
-            if (fromObject && lastObj && !atObj) Debug.DrawLine(fromObject.transform.position, lastObj.transform.position, Color.red);
-            if (atObj) Debug.DrawLine(fromObject.transform.position, lastObj.transform.position, Color.green);
-        }
-        
-        return atObj;
+
+
+        //bool atObj = false;
+        //bool stopWhile = false;
+        //int failSafe = 0;
+
+        //while (!stopWhile)
+        //{
+        //GameObject[] nextTo = FindObjectsNextToObject(fromObject, walkOn, 4);
+        //GameObject lastObj = null;
+
+        //bool contains;
+        //bool contains1;
+        //bool FINDNAME;
+
+        //for (int i = 0; i < nextTo.Length; i++)
+        //{
+        //if (nextTo[i])
+        //{
+        //contains = nextTo[i].name.Contains(walkOn);
+        //contains1 = nextTo[i].name.Contains(toObject);
+        //INDNAME = nextTo[i] != lastObj;
+
+        //if (contains && FINDNAME)
+        //{
+        //if (lastObj) lastObj = fromObject;
+        //else lastObj = fromObject;
+
+        //fromObject = nextTo[i];
+        //}
+        //if (contains1)
+        //{
+        //atObj = true;
+        //stopWhile = true;
+
+        //fromObject = nextTo[i];
+        //}
+        //if (!contains || !contains1) stopWhile = true;
+        //}
+        //}
+
+        //failSafe++;
+        //if (failSafe == 500)
+        //{
+        //stopWhile = true;
+        //Debug.LogWarning("Infinite loop detected");
+        //}
+        //if (fromObject && lastObj && !atObj) Debug.DrawLine(fromObject.transform.position, lastObj.transform.position, Color.red);
+        //if (atObj) Debug.DrawLine(fromObject.transform.position, lastObj.transform.position, Color.green);
+        //}
+
+        //return atObj;
     }
 }
