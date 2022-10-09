@@ -308,10 +308,10 @@ public class PlayerController : MonoBehaviour
         return objectThatContains;
     }
 
-    private void DebuggingCanReach(string toObject, string walkOn)      //Stop the infinite loop and all that jazz
+    private void DebuggingCanReach(string toObject, string walkOn)
     {
         List<GameObject> objectsBeenAt = new List<GameObject>();
-        GameObject currentObject = GameObject.Find("TestingBlock_Tile_Attach (6)");
+        GameObject currentObject = GameObject.Find("TestingBlock_Tile_Attach");
         GameObject[] nextTo = FindObjectsNextToObject(currentObject, walkOn, 4);
         GameObject nextObject = null;
         bool newObject = true;
@@ -330,8 +330,7 @@ public class PlayerController : MonoBehaviour
             if (nextTo[i] && nextTo[i].name.Contains(walkOn) && newObject)
             {
                 nextObject = nextTo[i];
-                objectsBeenAt.Add(currentObject);
-                currentObject = nextObject;
+                objectsBeenAt.Add(nextObject);
                 break;
             }
         }
@@ -342,6 +341,8 @@ public class PlayerController : MonoBehaviour
             for (int i = 0; i < objectsBeenAt.Count; i++) print("ObjectsBeenAt[" + i + "] = " + objectsBeenAt[i]);
             print("CurrentObject = " + currentObject);
         }
+
+        //Check all of the nextTo objects and return the ones that arnt null into a list then chose one at random/just pick the first index and run the same code making sure not to run into the same block untill it cant go anywhere else 
 
         if (nextObject && !infiniteLoopShutOff)
         {
@@ -354,13 +355,15 @@ public class PlayerController : MonoBehaviour
                 {
                     if (nextTo[i])
                     {
-                        if (nextTo[i].name.Contains(walkOn) && InListGameObject(nextTo[i], objectsBeenAt))
+                        if (nextTo[i].name.Contains(walkOn) && !InListGameObject(nextTo[i], objectsBeenAt))
                         {
                             nextObject = nextTo[i];
-                            objectsBeenAt.Add(currentObject);
-                            currentObject = nextObject;
+                            objectsBeenAt.Add(nextObject);
                             break;
                         }
+                        else if (InListGameObject(nextTo[i], objectsBeenAt)) currentObject = null;
+
+                        if (nextTo[i].name.Contains(toObject) && InListGameObject(nextTo[i], objectsBeenAt)) currentObject = null;
                     }
                 }
 
@@ -370,6 +373,11 @@ public class PlayerController : MonoBehaviour
                     infiniteLoopShutOff = true;
                     break;
                 }
+
+                for (int i = 0; i < objectsBeenAt.Count; i++)
+                {
+                    if (i < objectsBeenAt.Count - 1 && objectsBeenAt[i] && objectsBeenAt[i + 1]) Debug.DrawLine(objectsBeenAt[i].transform.position, objectsBeenAt[i + 1].transform.position, Color.red);
+                }
             }
 
             if (Input.GetKeyDown(KeyCode.Home))
@@ -377,11 +385,6 @@ public class PlayerController : MonoBehaviour
                 print("_______________________");
                 for (int i = 0; i < objectsBeenAt.Count; i++) print("ObjectsBeenAt[" + i + "] = " + objectsBeenAt[i]);
                 print("CurrentObject = " + currentObject);
-            }
-
-            for (int i = 0; i < objectsBeenAt.Count; i++)
-            {
-                if (i + 1 < objectsBeenAt.Count && objectsBeenAt[i] && objectsBeenAt[i + 1]) Debug.DrawLine(objectsBeenAt[i].transform.position, objectsBeenAt[i + 1].transform.position, Color.red);
             }
         }
 
