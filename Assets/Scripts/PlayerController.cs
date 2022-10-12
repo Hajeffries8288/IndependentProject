@@ -32,8 +32,6 @@ public class PlayerController : MonoBehaviour
     [Header("Debuging")]
     [HideInInspector] public static List<GameObject> allObjects;
 
-    bool infiniteLoopShutOff;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -179,16 +177,6 @@ public class PlayerController : MonoBehaviour
         {
             //Make mouse code after disnyland or make the way it would work aka come up with ideas for how it will work at disnyland.
         }
-
-        //for (int i = 0; i < allObjects.Count; i++)
-        //{
-            //if (allObjects[i].name.Contains("_Attach"))
-            //{
-                //DebuggingCanReach("ShipCore", "_Attach");
-            //}
-        //}
-
-        DebuggingCanReach("ShipCore", "_Attach");
     }
 
     private void DebugingPhysics()
@@ -308,144 +296,49 @@ public class PlayerController : MonoBehaviour
         return objectThatContains;
     }
 
-    private void DebuggingCanReach(string toObject, string walkOn)
+    private void DebuggingAPathfinding(Vector2 startNode, Vector2 endNode)
     {
-        List<GameObject> objectsBeenAt = new List<GameObject>();
-        GameObject currentObject = GameObject.Find("TestingBlock_Tile_Attach");
-        GameObject[] nextTo = FindObjectsNextToObject(currentObject, walkOn, 4);
-        GameObject nextObject = null;
-        bool newObject = true;
-        int failSafe = 0;
+        List<PathfindingNode> openPathNodes = new List<PathfindingNode>();      //Nodes that havent been walked on
+        List<PathfindingNode> closedPathNodes = new List<PathfindingNode>();    //Nodes that have been walked on
+        openPathNodes.Add(GameObject.Find("ShipCore").GetComponent<PathfindingNode>());
+        PathfindingNode currentNode = GameObject.Find("ShipCore").GetComponent<PathfindingNode>();
 
-        for (int i = 0; i < nextTo.Length; i++)
+        for (int i = 0; i < allObjects.Count; i++)
         {
-            newObject = true;
-
-            for (int j = 0; j < objectsBeenAt.Count; j++)
+            PathfindingNode pathfindingNode;
+            if (allObjects[i].name.Contains("_Attach"))
             {
-                if (nextTo[i] != objectsBeenAt[j]) newObject = true;
-                else newObject = false;
+                pathfindingNode = allObjects[i].GetComponent<PathfindingNode>();
+                pathfindingNode.gCost = (int)((Vector2)currentNode.transform.localPosition - startNode).magnitude;
+                pathfindingNode.hCost = (int)((Vector2)currentNode.transform.localPosition - endNode).magnitude;
+                pathfindingNode.fCost = pathfindingNode.gCost + pathfindingNode.hCost;
+            }
+        }
+
+        int loopCount = 0;
+        while (true)
+        {
+            GameObject[] objectsNextToNode = FindObjectsNextToObject(currentNode.gameObject, "_Attach", 4);
+            for (int i = 0; i < 4; i++) if (objectsNextToNode[i] != null) openPathNodes.Add(objectsNextToNode[i].GetComponent<PathfindingNode>());
+            int[] nodeGCost = new int[openPathNodes.Count];
+            int[] nodeHCost = new int[openPathNodes.Count];
+            int[] nodeFCost = new int[openPathNodes.Count];
+            for (int i = 0; i < openPathNodes.Count; i++)
+            {
+                nodeGCost[i] = openPathNodes[i].gCost;
+                nodeHCost[i] = openPathNodes[i].hCost;
+                nodeFCost[i] = openPathNodes[i].fCost;
             }
 
-            if (nextTo[i] && nextTo[i].name.Contains(walkOn) && newObject)
+            currentNode = openPathNodes[Mathf.Min(nodeFCost)];          //NOTE: This needs to check if there are multible nodes with the same fCost and if they are then currentNode will = the nodes with the lowest fCost loest hCost
+
+            loopCount++;
+            if (loopCount == 500)
             {
-                nextObject = nextTo[i];
-                objectsBeenAt.Add(nextObject);
+                Debug.LogWarning("Infinite Loop Detected!");
                 break;
             }
         }
-
-        if (Input.GetKeyDown(KeyCode.Home))
-        {
-            print("_______________________");
-            for (int i = 0; i < objectsBeenAt.Count; i++) print("ObjectsBeenAt[" + i + "] = " + objectsBeenAt[i]);
-            print("CurrentObject = " + currentObject);
-        }
-
-        //Check all of the nextTo objects and return the ones that arnt null into a list then chose one at random/just pick the first index and run the same code making sure not to run into the same block untill it cant go anywhere else 
-
-        if (nextObject && !infiniteLoopShutOff)
-        {
-            while (currentObject != null)
-            {
-                failSafe++;
-                nextTo = FindObjectsNextToObject(currentObject, walkOn, 4);
-
-                for (int i = 0; i < nextTo.Length; i++)
-                {
-                    if (nextTo[i])
-                    {
-                        if (nextTo[i].name.Contains(walkOn) && !InListGameObject(nextTo[i], objectsBeenAt))
-                        {
-                            nextObject = nextTo[i];
-                            objectsBeenAt.Add(nextObject);
-                            break;
-                        }
-                        else if (InListGameObject(nextTo[i], objectsBeenAt)) currentObject = null;
-
-                        if (nextTo[i].name.Contains(toObject) && InListGameObject(nextTo[i], objectsBeenAt)) currentObject = null;
-                    }
-                }
-
-                if (failSafe == 500)
-                {
-                    Debug.LogWarning("Infinite loop detected!");
-                    infiniteLoopShutOff = true;
-                    break;
-                }
-
-                for (int i = 0; i < objectsBeenAt.Count; i++)
-                {
-                    if (i < objectsBeenAt.Count - 1 && objectsBeenAt[i] && objectsBeenAt[i + 1]) Debug.DrawLine(objectsBeenAt[i].transform.position, objectsBeenAt[i + 1].transform.position, Color.red);
-                }
-            }
-
-            if (Input.GetKeyDown(KeyCode.Home))
-            {
-                print("_______________________");
-                for (int i = 0; i < objectsBeenAt.Count; i++) print("ObjectsBeenAt[" + i + "] = " + objectsBeenAt[i]);
-                print("CurrentObject = " + currentObject);
-            }
-        }
-
-
-
-
-
-
-
-
-
-        //bool atObj = false;
-        //bool stopWhile = false;
-        //int failSafe = 0;
-
-        //while (!stopWhile)
-        //{
-        //GameObject[] nextTo = FindObjectsNextToObject(fromObject, walkOn, 4);
-        //GameObject lastObj = null;
-
-        //bool contains;
-        //bool contains1;
-        //bool FINDNAME;
-
-        //for (int i = 0; i < nextTo.Length; i++)
-        //{
-        //if (nextTo[i])
-        //{
-        //contains = nextTo[i].name.Contains(walkOn);
-        //contains1 = nextTo[i].name.Contains(toObject);
-        //INDNAME = nextTo[i] != lastObj;
-
-        //if (contains && FINDNAME)
-        //{
-        //if (lastObj) lastObj = fromObject;
-        //else lastObj = fromObject;
-
-        //fromObject = nextTo[i];
-        //}
-        //if (contains1)
-        //{
-        //atObj = true;
-        //stopWhile = true;
-
-        //fromObject = nextTo[i];
-        //}
-        //if (!contains || !contains1) stopWhile = true;
-        //}
-        //}
-
-        //failSafe++;
-        //if (failSafe == 500)
-        //{
-        //stopWhile = true;
-        //Debug.LogWarning("Infinite loop detected");
-        //}
-        //if (fromObject && lastObj && !atObj) Debug.DrawLine(fromObject.transform.position, lastObj.transform.position, Color.red);
-        //if (atObj) Debug.DrawLine(fromObject.transform.position, lastObj.transform.position, Color.green);
-        //}
-
-        //return atObj;
     }
 
     private bool InListGameObject(GameObject checkFor, List<GameObject> list)
