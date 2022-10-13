@@ -32,6 +32,8 @@ public class PlayerController : MonoBehaviour
     [Header("Debuging")]
     [HideInInspector] public static List<GameObject> allObjects;
 
+    bool loopShutDown = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -177,6 +179,8 @@ public class PlayerController : MonoBehaviour
         {
             //Make mouse code after disnyland or make the way it would work aka come up with ideas for how it will work at disnyland.
         }
+        
+        if (destroy && Input.GetButtonDown("Fire1")) for (int i = 0; i < allObjects.Count; i++) if (allObjects[i].name.Contains("_Attach")) print(DebuggingIsAttached(GameObject.Find("ShipCore_Attach").GetComponent<PathfindingNode>(), allObjects[i].GetComponent<PathfindingNode>()));
     }
 
     private void DebugingPhysics()
@@ -296,49 +300,62 @@ public class PlayerController : MonoBehaviour
         return objectThatContains;
     }
 
-    private void DebuggingAPathfinding(Vector2 startNode, Vector2 endNode)
+    private bool DebuggingIsAttached(PathfindingNode startNode, PathfindingNode endNode)
     {
-        List<PathfindingNode> openPathNodes = new List<PathfindingNode>();      //Nodes that havent been walked on
-        List<PathfindingNode> closedPathNodes = new List<PathfindingNode>();    //Nodes that have been walked on
-        openPathNodes.Add(GameObject.Find("ShipCore").GetComponent<PathfindingNode>());
-        PathfindingNode currentNode = GameObject.Find("ShipCore").GetComponent<PathfindingNode>();
+        bool attached = false;
+
+        List<PathfindingNode> openPathNodes = new List<PathfindingNode>();      //Nodes to be evaluated
+        HashSet<PathfindingNode> closedPathNodes = new HashSet<PathfindingNode>();    //Nodes that have been evaluated
+        openPathNodes.Add(startNode);
 
         for (int i = 0; i < allObjects.Count; i++)
         {
             PathfindingNode pathfindingNode;
-            if (allObjects[i].name.Contains("_Attach"))
+            if (allObjects[i] && allObjects[i].name.Contains("_Attach"))
             {
                 pathfindingNode = allObjects[i].GetComponent<PathfindingNode>();
-                pathfindingNode.gCost = (int)((Vector2)currentNode.transform.localPosition - startNode).magnitude;
-                pathfindingNode.hCost = (int)((Vector2)currentNode.transform.localPosition - endNode).magnitude;
+                pathfindingNode.gCost = (int)((Vector2)allObjects[i].transform.localPosition - (Vector2)startNode.transform.localPosition).magnitude;
+                pathfindingNode.hCost = (int)((Vector2)allObjects[i].transform.localPosition - (Vector2)endNode.transform.localPosition).magnitude;
                 pathfindingNode.fCost = pathfindingNode.gCost + pathfindingNode.hCost;
             }
+            else if (!allObjects[i]) allObjects.RemoveAt(i);
         }
 
-        int loopCount = 0;
-        while (true)
+        while (openPathNodes.Count > 0)
         {
-            GameObject[] objectsNextToNode = FindObjectsNextToObject(currentNode.gameObject, "_Attach", 4);
-            for (int i = 0; i < 4; i++) if (objectsNextToNode[i] != null) openPathNodes.Add(objectsNextToNode[i].GetComponent<PathfindingNode>());
-            int[] nodeGCost = new int[openPathNodes.Count];
-            int[] nodeHCost = new int[openPathNodes.Count];
-            int[] nodeFCost = new int[openPathNodes.Count];
-            for (int i = 0; i < openPathNodes.Count; i++)
-            {
-                nodeGCost[i] = openPathNodes[i].gCost;
-                nodeHCost[i] = openPathNodes[i].hCost;
-                nodeFCost[i] = openPathNodes[i].fCost;
-            }
+            PathfindingNode currentNode = openPathNodes[0];
+            for (int i = 0; i < openPathNodes.Count; i++) if (currentNode.fCost < openPathNodes[i].fCost || currentNode.fCost == openPathNodes[i].fCost && currentNode.hCost < openPathNodes[i].hCost) currentNode = openPathNodes[i];
 
-            currentNode = openPathNodes[Mathf.Min(nodeFCost)];          //NOTE: This needs to check if there are multible nodes with the same fCost and if they are then currentNode will = the nodes with the lowest fCost loest hCost
+            openPathNodes.Remove(currentNode);
+            closedPathNodes.Add(currentNode);
 
-            loopCount++;
-            if (loopCount == 500)
+            if (currentNode == endNode)
             {
-                Debug.LogWarning("Infinite Loop Detected!");
+                attached = true;
                 break;
             }
+
+            GameObject[] objectsNextToNode = FindObjectsNextToObject(currentNode.gameObject, "_Attach", 4);
+            foreach (GameObject objectNextToCurrentNode in objectsNextToNode)
+            {
+                if (objectNextToCurrentNode)
+                {
+                    if (closedPathNodes.Contains(objectNextToCurrentNode.GetComponent<PathfindingNode>())) continue;
+
+                    PathfindingNode nextToCurrentNode = objectNextToCurrentNode.GetComponent<PathfindingNode>();
+                    int newMovementCost = currentNode.gCost + (int)((Vector2)currentNode.transform.localPosition - (Vector2)nextToCurrentNode.transform.localPosition).magnitude;
+                    if (newMovementCost < nextToCurrentNode.fCost || !openPathNodes.Contains(nextToCurrentNode))
+                    {
+                        nextToCurrentNode.gCost = newMovementCost;
+                        nextToCurrentNode.hCost = (int)((Vector2)nextToCurrentNode.transform.localPosition - (Vector2)endNode.transform.localPosition).magnitude;
+                        nextToCurrentNode.parentNode = currentNode;
+
+                        if (!openPathNodes.Contains(nextToCurrentNode)) openPathNodes.Add(nextToCurrentNode);
+                    }
+                }
+            }
         }
+        return attached;
     }
 
     private bool InListGameObject(GameObject checkFor, List<GameObject> list)
