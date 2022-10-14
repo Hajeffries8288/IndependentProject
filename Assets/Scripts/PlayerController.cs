@@ -32,8 +32,6 @@ public class PlayerController : MonoBehaviour
     [Header("Debuging")]
     [HideInInspector] public static List<GameObject> allObjects;
 
-    bool loopShutDown = false;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -69,7 +67,7 @@ public class PlayerController : MonoBehaviour
     {
         DebugingPhysics();
     }
-
+    
     private void Movement()
     {
         //WASD 
@@ -148,7 +146,24 @@ public class PlayerController : MonoBehaviour
             }
             else if (destroy && Input.GetButtonDown("Fire1") && closestTileObjectToInstBuildableObject && buildingTile.transform.localPosition == closestTileObjectToInstBuildableObject.transform.localPosition)
             {
+                GameObject unattachedObjectsParent = new GameObject("UnattachedObjectsParent");
+                Rigidbody2D unattachedObjectsParentRb = unattachedObjectsParent.AddComponent<Rigidbody2D>();
+                
+                unattachedObjectsParentRb.gravityScale = 0;
+                unattachedObjectsParentRb.velocity = ship.GetComponent<Rigidbody2D>().velocity;
+                unattachedObjectsParentRb.useAutoMass = true;
+
                 allObjects.Remove(closestTileObjectToInstBuildableObject);
+
+                for (int i = 0; i < allObjects.Count; i++)
+                {
+                    if (allObjects[i].name.Contains("_Tile") && !IsAttached(GameObject.Find("ShipCore_Attach").GetComponent<PathfindingNode>(), allObjects[i].GetComponent<PathfindingNode>()))
+                    {
+                        allObjects[i].name = "UnattachedUslessObject";
+                        allObjects[i].transform.parent = unattachedObjectsParent.transform;
+                    }
+                }
+
                 Destroy(closestTileObjectToInstBuildableObject);
             }
 
@@ -179,8 +194,6 @@ public class PlayerController : MonoBehaviour
         {
             //Make mouse code after disnyland or make the way it would work aka come up with ideas for how it will work at disnyland.
         }
-        
-        if (destroy && Input.GetButtonDown("Fire1")) for (int i = 0; i < allObjects.Count; i++) if (allObjects[i].name.Contains("_Attach")) print(DebuggingIsAttached(GameObject.Find("ShipCore_Attach").GetComponent<PathfindingNode>(), allObjects[i].GetComponent<PathfindingNode>()));
     }
 
     private void DebugingPhysics()
@@ -300,7 +313,7 @@ public class PlayerController : MonoBehaviour
         return objectThatContains;
     }
 
-    private bool DebuggingIsAttached(PathfindingNode startNode, PathfindingNode endNode)
+    private bool IsAttached(PathfindingNode startNode, PathfindingNode endNode)
     {
         bool attached = false;
 
@@ -311,7 +324,8 @@ public class PlayerController : MonoBehaviour
         for (int i = 0; i < allObjects.Count; i++)
         {
             PathfindingNode pathfindingNode;
-            if (allObjects[i] && allObjects[i].name.Contains("_Attach"))
+
+            if (allObjects[i] && allObjects[i].name.Contains("_Tile"))
             {
                 pathfindingNode = allObjects[i].GetComponent<PathfindingNode>();
                 pathfindingNode.gCost = (int)((Vector2)allObjects[i].transform.localPosition - (Vector2)startNode.transform.localPosition).magnitude;
@@ -324,6 +338,7 @@ public class PlayerController : MonoBehaviour
         while (openPathNodes.Count > 0)
         {
             PathfindingNode currentNode = openPathNodes[0];
+
             for (int i = 0; i < openPathNodes.Count; i++) if (currentNode.fCost < openPathNodes[i].fCost || currentNode.fCost == openPathNodes[i].fCost && currentNode.hCost < openPathNodes[i].hCost) currentNode = openPathNodes[i];
 
             openPathNodes.Remove(currentNode);
@@ -335,7 +350,7 @@ public class PlayerController : MonoBehaviour
                 break;
             }
 
-            GameObject[] objectsNextToNode = FindObjectsNextToObject(currentNode.gameObject, "_Attach", 4);
+            GameObject[] objectsNextToNode = FindObjectsNextToObject(currentNode.gameObject, "_Tile", 4);
             foreach (GameObject objectNextToCurrentNode in objectsNextToNode)
             {
                 if (objectNextToCurrentNode)
@@ -343,6 +358,7 @@ public class PlayerController : MonoBehaviour
                     if (closedPathNodes.Contains(objectNextToCurrentNode.GetComponent<PathfindingNode>())) continue;
 
                     PathfindingNode nextToCurrentNode = objectNextToCurrentNode.GetComponent<PathfindingNode>();
+
                     int newMovementCost = currentNode.gCost + (int)((Vector2)currentNode.transform.localPosition - (Vector2)nextToCurrentNode.transform.localPosition).magnitude;
                     if (newMovementCost < nextToCurrentNode.fCost || !openPathNodes.Contains(nextToCurrentNode))
                     {
