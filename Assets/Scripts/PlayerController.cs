@@ -108,17 +108,29 @@ public class PlayerController : MonoBehaviour
     {
         if (building)
         {
+            //Creates the tile that the player is trying to build
             if (!buildingTile) buildingTile = Instantiate(buildableObjects[buildingIndex], ship.transform);
+
+            //Local variables 
+            GameObject[] tilesNextToTileBuilding = FindObjectsNextToObject(buildingTile, "_Attach", 4);
+            GameObject closestTileObjectToInstBuildableObject = FindClosestObjectThatContains(buildingTile, "_Tile");
             Collider2D tileBuildingCollider = buildingTile.GetComponent<Collider2D>();
+            BoxCollider2D tileBuildingBoxCollider = buildingTile.GetComponent<BoxCollider2D>();
+            bool canPlace = false;
 
+            //Checks if there is a collider and if so then disable it 
             if (tileBuildingCollider) tileBuildingCollider.enabled = false;
-            buildingTile.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            buildingTile.transform.localPosition = new Vector3(Mathf.Round(buildingTile.transform.localPosition.x / multible) * multible, Mathf.Round(buildingTile.transform.localPosition.y / multible) * multible, 0);
 
+            //This is how the tile system works for placeing the tiles in the correct positions
+            buildingTile.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            if (tileBuildingBoxCollider && tileBuildingBoxCollider.size.y % 2 == 0) buildingTile.transform.localPosition = new Vector3(Mathf.Round(buildingTile.transform.localPosition.x / multible) * multible, Mathf.Round(buildingTile.transform.localPosition.y / multible) * multible - 0.5f, 0);
+            else buildingTile.transform.localPosition = new Vector3(Mathf.Round(buildingTile.transform.localPosition.x / multible) * multible, Mathf.Round(buildingTile.transform.localPosition.y / multible) * multible, 0);
+
+            //if (Input.GetKeyDown(KeyCode.Home) && tileBuildingBoxCollider) print(tileBuildingBoxCollider.size);
+
+            //Checks if this object should be auto rotated to a tile before placeing 
             if (autoRotate)
             {
-                GameObject[] tilesNextToTileBuilding = FindObjectsNextToObject(buildingTile, "_Attach", 4);
-
                 if (Input.GetKeyDown(KeyCode.R) && tilesNextToTileBuilding[tilesNextToObjectBuildingIndex] && tilesNextToObjectBuildingIndex < 4) tilesNextToObjectBuildingIndex++;
                 if (tilesNextToObjectBuildingIndex >= 4) tilesNextToObjectBuildingIndex = 0;
                 if (!tilesNextToTileBuilding[tilesNextToObjectBuildingIndex]) tilesNextToObjectBuildingIndex++;
@@ -133,22 +145,24 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
+            //Checks if the object can be rotated by the player
             if (rotate && Input.GetKeyDown(KeyCode.R)) buildingTile.transform.localRotation *= Quaternion.Euler(0, 0, 90);
 
-            GameObject closestTileObjectToInstBuildableObjectAttach = FindClosestObjectThatContains(buildingTile, "_Attach");
-            GameObject closestTileObjectToInstBuildableObject = FindClosestObjectThatContains(buildingTile, "_Tile");
+            //This is checking if there is a tile next to the tile the player is trying to build
+            for (int i = 0; i < tilesNextToTileBuilding.Length; i++) if (tilesNextToTileBuilding[i] && tilesNextToTileBuilding[i].name.Contains("_Attach")) canPlace = true;
 
-            if (!destroy && Input.GetButton("Fire1") && closestTileObjectToInstBuildableObjectAttach && closestTileObjectToInstBuildableObject && buildingTile.transform.localPosition != closestTileObjectToInstBuildableObject.transform.localPosition && (buildingTile.transform.localPosition - closestTileObjectToInstBuildableObjectAttach.transform.localPosition).magnitude == multible)
+            //Places/Builds the tile
+            if (!destroy && Input.GetButton("Fire1") && canPlace && buildingTile.transform.localPosition != closestTileObjectToInstBuildableObject.transform.localPosition)
             {
                 if (tileBuildingCollider) tileBuildingCollider.enabled = true;
                 allObjects.Add(buildingTile);
                 buildingTile = null;
             }
-            else if (destroy && Input.GetButtonDown("Fire1") && closestTileObjectToInstBuildableObject && buildingTile.transform.localPosition == closestTileObjectToInstBuildableObject.transform.localPosition)
+            else if (destroy && Input.GetButtonDown("Fire1") && buildingTile.transform.localPosition == closestTileObjectToInstBuildableObject.transform.localPosition) //Destroyes the tile under the "buildingTile" and disconnects all tiles that are no longer connected to the ship's core                      NOTE: This should be done somewhere else 
             {
                 GameObject unattachedObjectsParent = new GameObject("UnattachedObjectsParent");
                 Rigidbody2D unattachedObjectsParentRb = unattachedObjectsParent.AddComponent<Rigidbody2D>();
-                
+
                 unattachedObjectsParentRb.gravityScale = 0;
                 unattachedObjectsParentRb.velocity = ship.GetComponent<Rigidbody2D>().velocity;
                 unattachedObjectsParentRb.useAutoMass = true;
@@ -167,6 +181,7 @@ public class PlayerController : MonoBehaviour
                 Destroy(closestTileObjectToInstBuildableObject);
             }
 
+            //Stops building script
             if (Input.GetButtonUp("Fire2"))
             {
                 Destroy(buildingTile.gameObject);
@@ -177,7 +192,7 @@ public class PlayerController : MonoBehaviour
                 destroy = false;
             }
         }
-    }               //NOTE: This may cause poor memory find fix if needed
+    }
 
     private void Debuging()
     {
@@ -235,6 +250,12 @@ public class PlayerController : MonoBehaviour
             destroy = false;
             rotate = false;
             autoRotate = true;
+        }
+        if (buildingIndex == 5) //Door
+        {
+            destroy = false;
+            rotate = false;
+            autoRotate = false;
         }
 
         building = true;
