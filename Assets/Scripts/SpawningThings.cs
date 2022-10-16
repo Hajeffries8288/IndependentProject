@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//                          NOTE: Maybe try to make a better name for this script but for now this should work
+//NOTE: Maybe try to make a better name for this script but for now this should work
+//NOTE: Find a way that takes way less variables 
 
 public class SpawningThings : MonoBehaviour
 {
@@ -40,8 +41,21 @@ public class SpawningThings : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Spawning();
+
+        Debugging();
+    }
+
+    private void Debugging()
+    {
+        
+    }
+
+    private void Spawning()
+    {
         //Astroyids
         if (coroutineStart[0]) StartCoroutine(CheckAstroyids());
+
         if (createAstroyid)
         {
             float scale = Random.Range(0.1f, astroyidMaximumSize);
@@ -59,6 +73,7 @@ public class SpawningThings : MonoBehaviour
             instAstroyid.transform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
             instAstroyid.transform.localScale = new Vector3(scale, scale, 1);
             astroyidsCreated.Add(instAstroyid);
+
             //Astroyids position
             while ((transform.position - instAstroyid.transform.position).magnitude < distanceToSpawnAstroyids) instAstroyid.transform.position = new Vector3(transform.position.x + Random.Range(-distanceToSpawnAstroyids - 10, distanceToSpawnAstroyids + 10), transform.position.y + Random.Range(-distanceToSpawnAstroyids - 10, distanceToSpawnAstroyids + 10), 0);
 
@@ -77,13 +92,6 @@ public class SpawningThings : MonoBehaviour
 
             createAstroyid = false;
         }
-
-        Debugging();
-    }
-
-    private void Debugging()
-    {
-        
     }
 
     public IEnumerator CheckAstroyids()

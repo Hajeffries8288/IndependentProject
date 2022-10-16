@@ -9,11 +9,11 @@ public class PlayerController : MonoBehaviour
     public float speed;
     public float shiftSpeed;
     public float maxZoomOut;
-    GameObject ship;
     float mouseScroll;
+    GameObject ship;
     Camera mainCamera;
 
-    //Building
+    //Building                                  NOTE: Try to find a way to have less bools
     [Header("Building")]
     public static bool building;
     public float multible;
@@ -26,11 +26,13 @@ public class PlayerController : MonoBehaviour
     bool destroy;
 
     //Clicking
-    
+
+
+    //Misc
+    [HideInInspector] public static List<GameObject> allObjects;
 
     //Debuging
-    [Header("Debuging")]
-    [HideInInspector] public static List<GameObject> allObjects;
+    
 
     // Start is called before the first frame update
     void Start()
@@ -61,11 +63,6 @@ public class PlayerController : MonoBehaviour
         Building();
 
         Debuging();       
-    }
-
-    private void FixedUpdate()
-    {
-        DebugingPhysics();
     }
     
     private void Movement()
@@ -209,11 +206,6 @@ public class PlayerController : MonoBehaviour
         {
             //Make mouse code after disnyland or make the way it would work aka come up with ideas for how it will work at disnyland.
         }
-    }
-
-    private void DebugingPhysics()
-    {
-        
     }
 
     public void SelectedObjectFromGUI(int objectSelectedIndex)
@@ -394,13 +386,4 @@ public class PlayerController : MonoBehaviour
         }
         return attached;
     }
-
-    private bool InListGameObject(GameObject checkFor, List<GameObject> list)
-    {
-        bool boolToReturn = false;
-
-        for (int i = 0; i < list.Count; i++) if (checkFor == list[i]) boolToReturn = true;
-
-        return boolToReturn;
-    }       //Rename this!
 }

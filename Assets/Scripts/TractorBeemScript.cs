@@ -4,29 +4,23 @@ using UnityEngine;
 
 public class TractorBeemScript : MonoBehaviour
 {
-    //DebuggingPhysics
-    public float velocityOfPickingUpAstroyid;       //Change this name when you have the chance
+    //TractorBeem
+    public float velocityOfPickingUpAstroyid;
 
     //Raycast
     public float distanceToPickUpAstroyid;
     RaycastHit2D hit;
 
-    //Misc
-    //List<GameObject> allObjects;
-
-    private void Start()
-    {
-        //allObjects = PlayerController.allObjects;
-    }
-
     private void FixedUpdate()
     {
         DebugingPhysics();
+
         TractorBeem();
     }
 
     private void DebugingPhysics()
     {
+        //Draw a debug line the color of red when the tractor beem hits a pickupable object
         if (GetComponent<BoxCollider2D>().enabled && hit && hit.transform.name.Contains("Astroyids")) Debug.DrawLine(transform.position, hit.point, Color.red);
     }
 

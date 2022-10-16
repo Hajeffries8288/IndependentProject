@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PathfindingNode : MonoBehaviour
+public class PathfindingNode : MonoBehaviour                //Maybe find a new name because this isn't actually for pathfinding
 {
-    public int gCost;
-    public int hCost;
-    public int fCost;
+    [HideInInspector] public int gCost;
+    [HideInInspector] public int hCost;
+    [HideInInspector] public int fCost;
 
-    public PathfindingNode parentNode;
+    [HideInInspector] public PathfindingNode parentNode;
 }
