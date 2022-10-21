@@ -110,7 +110,6 @@ public class PlayerController : MonoBehaviour
 
             //Local variables 
             GameObject[] tilesNextToTileBuilding = FindObjectsNextToObject(buildingTile, "_Attach", 4);
-            GameObject closestTileObjectToInstBuildableObject = FindClosestObjectThatContains(buildingTile, "_Tile");
             Collider2D tileBuildingCollider = buildingTile.GetComponent<Collider2D>();
             BoxCollider2D tileBuildingBoxCollider = buildingTile.GetComponent<BoxCollider2D>();
             bool canPlace = false;
@@ -148,6 +147,8 @@ public class PlayerController : MonoBehaviour
             //This is checking if there is a tile next to the tile the player is trying to build
             for (int i = 0; i < tilesNextToTileBuilding.Length; i++) if (tilesNextToTileBuilding[i] && tilesNextToTileBuilding[i].name.Contains("_Attach")) canPlace = true;
 
+            GameObject closestTileObjectToInstBuildableObject = FindClosestObjectThatContains(buildingTile, "_Tile");       //Figgure out why this variable has to be here
+
             //Places/Builds the tile
             if (!destroy && Input.GetButton("Fire1") && canPlace && buildingTile.transform.localPosition != closestTileObjectToInstBuildableObject.transform.localPosition)
             {
@@ -165,6 +166,7 @@ public class PlayerController : MonoBehaviour
                 unattachedObjectsParentRb.useAutoMass = true;
 
                 allObjects.Remove(closestTileObjectToInstBuildableObject);
+                Destroy(closestTileObjectToInstBuildableObject);
 
                 for (int i = 0; i < allObjects.Count; i++)
                 {
@@ -174,8 +176,6 @@ public class PlayerController : MonoBehaviour
                         allObjects[i].transform.parent = unattachedObjectsParent.transform;
                     }
                 }
-
-                Destroy(closestTileObjectToInstBuildableObject);
             }
 
             //Stops building script
