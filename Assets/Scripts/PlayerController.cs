@@ -109,13 +109,14 @@ public class PlayerController : MonoBehaviour
             if (!buildingTile) buildingTile = Instantiate(buildableObjects[buildingIndex], ship.transform);
 
             //Local variables 
-            GameObject[] tilesNextToTileBuilding = FindObjectsNextToObject(buildingTile, "_Attach", 4);
-            Collider2D tileBuildingCollider = buildingTile.GetComponent<Collider2D>();
             BoxCollider2D tileBuildingBoxCollider = buildingTile.GetComponent<BoxCollider2D>();
+            Collider2D tileBuildingCollider = buildingTile.GetComponent<Collider2D>();
             bool canPlace = false;
 
             //Checks if there is a collider and if so then disable it 
             if (tileBuildingCollider) tileBuildingCollider.enabled = false;
+
+            GameObject[] tilesNextToTileBuilding = FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, tileBuildingBoxCollider.size.magnitude);
 
             //This is how the tile system works for placeing the tiles in the correct positions
             buildingTile.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -297,7 +298,37 @@ public class PlayerController : MonoBehaviour
 
         for (int i = 0; i < objectsThatContains.Count; i++)
         {
-            if ((fromObject.transform.localPosition - objectsThatContains[i].transform.localPosition).magnitude == 1) //For testing
+            if ((fromObject.transform.localPosition - objectsThatContains[i].transform.localPosition).magnitude == 1)
+            {
+                for (int j = 0; j < ammountOfObjects; j++)
+                {
+                    if (objectsToReturn[j] == null)
+                    {
+                        objectsToReturn[j] = objectsThatContains[i];
+                        break;
+                    }
+                }
+            }
+        }
+
+        return objectsToReturn;
+    }
+    private GameObject[] FindObjectsNextToObjectDebug(GameObject fromObject, string contains, int ammountOfObjects, float sizeOfObj)
+    {
+        GameObject[] objectsToReturn = new GameObject[ammountOfObjects];
+        List<GameObject> objectsThatContains = new List<GameObject>();
+
+        for (int i = 0; i < allObjects.Count; i++)
+        {
+            if (allObjects[i] && allObjects[i].name.Contains(contains)) objectsThatContains.Add(allObjects[i]);
+            else if (!allObjects[i]) allObjects.RemoveAt(i);
+        }
+
+        for (int i = 0; i < objectsThatContains.Count; i++)
+        {
+            if (Input.GetKeyDown(KeyCode.Home)) print((fromObject.transform.localPosition - objectsThatContains[i].transform.localPosition).magnitude);
+
+            if ((fromObject.transform.localPosition - objectsThatContains[i].transform.localPosition).magnitude == sizeOfObj || (fromObject.transform.localPosition - objectsThatContains[i].transform.localPosition).magnitude == -sizeOfObj)
             {
                 for (int j = 0; j < ammountOfObjects; j++)
                 {
