@@ -95,6 +95,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 180061f0c2f643942b8856127e516aab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hCost: 0
   gCost: 0
+  hCost: 0
   fCost: 0
+  parentNode: {fileID: 0}

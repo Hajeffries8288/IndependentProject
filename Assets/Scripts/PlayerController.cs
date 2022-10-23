@@ -101,7 +101,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Building()
+    //What to do for building script
+    //Make a seprit thing for the tiles that are even and add .5 to their distance and stuffs 
+    //Good luck future me (:
+
+    private void Building()         //This needs another clean up
     {
         if (building)
         {
@@ -111,19 +115,30 @@ public class PlayerController : MonoBehaviour
             //Local variables 
             BoxCollider2D tileBuildingBoxCollider = buildingTile.GetComponent<BoxCollider2D>();
             Collider2D tileBuildingCollider = buildingTile.GetComponent<Collider2D>();
+            GameObject[] tilesNextToTileBuilding;
             bool canPlace = false;
-
-            //Checks if there is a collider and if so then disable it 
-            if (tileBuildingCollider) tileBuildingCollider.enabled = false;
-
-            GameObject[] tilesNextToTileBuilding = FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, tileBuildingBoxCollider.size.magnitude);
 
             //This is how the tile system works for placeing the tiles in the correct positions
             buildingTile.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            if (tileBuildingBoxCollider && tileBuildingBoxCollider.size.y % 2 == 0) buildingTile.transform.localPosition = new Vector3(Mathf.Round(buildingTile.transform.localPosition.x / multible) * multible, Mathf.Round(buildingTile.transform.localPosition.y / multible) * multible - 0.5f, 0);
-            else buildingTile.transform.localPosition = new Vector3(Mathf.Round(buildingTile.transform.localPosition.x / multible) * multible, Mathf.Round(buildingTile.transform.localPosition.y / multible) * multible, 0);
 
-            //if (Input.GetKeyDown(KeyCode.Home) && tileBuildingBoxCollider) print(tileBuildingBoxCollider.size);
+            if (tileBuildingBoxCollider && tileBuildingBoxCollider.size.y % 2 == 0)
+            {
+                buildingTile.transform.localPosition = new Vector3(Mathf.Round(buildingTile.transform.localPosition.x / multible) * multible, Mathf.Round(buildingTile.transform.localPosition.y / multible) * multible - 0.5f, 0);
+                tilesNextToTileBuilding = FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, tileBuildingBoxCollider.size.x, tileBuildingBoxCollider.size.y - .5f);
+            }
+            else if (tileBuildingBoxCollider)
+            {
+                buildingTile.transform.localPosition = new Vector3(Mathf.Round(buildingTile.transform.localPosition.x / multible) * multible, Mathf.Round(buildingTile.transform.localPosition.y / multible) * multible, 0);
+                tilesNextToTileBuilding = FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, tileBuildingBoxCollider.size.x, tileBuildingBoxCollider.size.y);
+            }
+            else
+            {
+                buildingTile.transform.localPosition = new Vector3(Mathf.Round(buildingTile.transform.localPosition.x / multible) * multible, Mathf.Round(buildingTile.transform.localPosition.y / multible) * multible, 0);
+                tilesNextToTileBuilding = FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, 1, 1);
+            }
+
+            //Checks if there is a collider and if so then disable it 
+            if (tileBuildingCollider) tileBuildingCollider.enabled = false;
 
             //Checks if this object should be auto rotated to a tile before placeing 
             if (autoRotate)
@@ -146,7 +161,10 @@ public class PlayerController : MonoBehaviour
             if (rotate && Input.GetKeyDown(KeyCode.R)) buildingTile.transform.localRotation *= Quaternion.Euler(0, 0, 90);
 
             //This is checking if there is a tile next to the tile the player is trying to build
-            for (int i = 0; i < tilesNextToTileBuilding.Length; i++) if (tilesNextToTileBuilding[i] && tilesNextToTileBuilding[i].name.Contains("_Attach")) canPlace = true;
+            for (int i = 0; i < tilesNextToTileBuilding.Length; i++)
+            {
+                if (tilesNextToTileBuilding[i] && tilesNextToTileBuilding[i].name.Contains("_Attach")) canPlace = true;
+            }
 
             GameObject closestTileObjectToInstBuildableObject = FindClosestObjectThatContains(buildingTile, "_Tile");       //Figgure out why this variable has to be here
 
@@ -157,7 +175,7 @@ public class PlayerController : MonoBehaviour
                 allObjects.Add(buildingTile);
                 buildingTile = null;
             }
-            else if (destroy && Input.GetButtonDown("Fire1") && buildingTile.transform.localPosition == closestTileObjectToInstBuildableObject.transform.localPosition) //Destroyes the tile under the "buildingTile" and disconnects all tiles that are no longer connected to the ship's core                      NOTE: This should be done somewhere else 
+            else if (destroy && Input.GetButtonDown("Fire1") && buildingTile.transform.localPosition == closestTileObjectToInstBuildableObject.transform.localPosition) //Destroyes the tile under the "buildingTile" and disconnects all tiles that are no longer connected to the ship's core                      NOTE: This should be done somewhere else !!!!!!!
             {
                 GameObject unattachedObjectsParent = new GameObject("UnattachedObjectsParent");
                 Rigidbody2D unattachedObjectsParentRb = unattachedObjectsParent.AddComponent<Rigidbody2D>();
@@ -313,7 +331,7 @@ public class PlayerController : MonoBehaviour
 
         return objectsToReturn;
     }
-    private GameObject[] FindObjectsNextToObjectDebug(GameObject fromObject, string contains, int ammountOfObjects, float sizeOfObj)
+    private GameObject[] FindObjectsNextToObjectDebug(GameObject fromObject, string contains, int ammountOfObjects, float xBoxColliderSize, float yBoxColliderSize)
     {
         GameObject[] objectsToReturn = new GameObject[ammountOfObjects];
         List<GameObject> objectsThatContains = new List<GameObject>();
@@ -326,13 +344,16 @@ public class PlayerController : MonoBehaviour
 
         for (int i = 0; i < objectsThatContains.Count; i++)
         {
-            if (Input.GetKeyDown(KeyCode.Home)) print((fromObject.transform.localPosition - objectsThatContains[i].transform.localPosition).magnitude);
+            float distanceBetweenObjects = (fromObject.transform.localPosition - objectsThatContains[i].transform.localPosition).magnitude;
 
-            if ((fromObject.transform.localPosition - objectsThatContains[i].transform.localPosition).magnitude == sizeOfObj || (fromObject.transform.localPosition - objectsThatContains[i].transform.localPosition).magnitude == -sizeOfObj)
+            if (distanceBetweenObjects != xBoxColliderSize && distanceBetweenObjects != yBoxColliderSize) Debug.DrawLine(fromObject.transform.localPosition, objectsThatContains[i].transform.localPosition, Color.red);
+            if (distanceBetweenObjects == xBoxColliderSize || distanceBetweenObjects == yBoxColliderSize) Debug.DrawLine(fromObject.transform.localPosition, objectsThatContains[i].transform.localPosition, Color.green);
+
+            if (distanceBetweenObjects == xBoxColliderSize || distanceBetweenObjects == yBoxColliderSize)
             {
-                for (int j = 0; j < ammountOfObjects; j++)
+                for (int j = 0; j < objectsToReturn.Length; j++)
                 {
-                    if (objectsToReturn[j] == null)
+                    if (!objectsToReturn[j])
                     {
                         objectsToReturn[j] = objectsThatContains[i];
                         break;
@@ -357,7 +378,7 @@ public class PlayerController : MonoBehaviour
         return objectThatContains;
     }
 
-    private bool IsAttached(PathfindingNode startNode, PathfindingNode endNode)
+    private bool IsAttached(PathfindingNode startNode, PathfindingNode endNode)                 //Figure out why doors are bing unattached
     {
         bool attached = false;
 
