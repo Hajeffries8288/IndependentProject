@@ -31,8 +31,11 @@ public class PlayerController : MonoBehaviour
     //Misc
     [HideInInspector] public static List<GameObject> allObjects;
 
-    //Debuging
-    
+    //GenerateGridDebug
+    public int rows = 5;
+    public int cols = 8;
+    public float tileSize = 1;
+    Vector2[] tilePositions;
 
     // Start is called before the first frame update
     void Start()
@@ -51,6 +54,10 @@ public class PlayerController : MonoBehaviour
         mainCamera = Camera.main;
 
         allObjects = new List<GameObject>(FindObjectsOfType<GameObject>());
+
+        //GenerateGridDebug
+        tilePositions = new Vector2[rows * cols];
+        GenerateGridDebug();
     }
 
     // Update is called once per frame
@@ -62,7 +69,9 @@ public class PlayerController : MonoBehaviour
 
         Building();
 
-        Debuging();       
+        Debuging();
+
+        //GenerateGridDebug();
     }
     
     private void Movement()
@@ -101,9 +110,19 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //What to do for building script
-    //Make a seprit thing for the tiles that are even and add .5 to their distance and stuffs 
-    //Good luck future me (:
+    private void GenerateGridDebug()                    //Work on this!!!
+    {
+        for (int row = 0; row < rows; row++)
+        {
+            for (int col = 0; col < cols; col++)
+            {
+                float posX = col * tileSize;
+                float posY = row * -tileSize;
+
+                tilePositions[col] = new Vector2(posX, posY);
+            }
+        }
+    }
 
     private void Building()         //This needs another clean up
     {
@@ -161,10 +180,7 @@ public class PlayerController : MonoBehaviour
             if (rotate && Input.GetKeyDown(KeyCode.R)) buildingTile.transform.localRotation *= Quaternion.Euler(0, 0, 90);
 
             //This is checking if there is a tile next to the tile the player is trying to build
-            for (int i = 0; i < tilesNextToTileBuilding.Length; i++)
-            {
-                if (tilesNextToTileBuilding[i] && tilesNextToTileBuilding[i].name.Contains("_Attach")) canPlace = true;
-            }
+            for (int i = 0; i < tilesNextToTileBuilding.Length; i++) if (tilesNextToTileBuilding[i] && tilesNextToTileBuilding[i].name.Contains("_Attach")) canPlace = true;
 
             GameObject closestTileObjectToInstBuildableObject = FindClosestObjectThatContains(buildingTile, "_Tile");       //Figgure out why this variable has to be here
 
@@ -186,7 +202,7 @@ public class PlayerController : MonoBehaviour
 
                 allObjects.Remove(closestTileObjectToInstBuildableObject);
                 Destroy(closestTileObjectToInstBuildableObject);
-
+                
                 for (int i = 0; i < allObjects.Count; i++)
                 {
                     if (allObjects[i].name.Contains("_Tile") && !IsAttached(GameObject.Find("ShipCore_Attach").GetComponent<PathfindingNode>(), allObjects[i].GetComponent<PathfindingNode>()))
@@ -225,6 +241,9 @@ public class PlayerController : MonoBehaviour
         {
             //Make mouse code after disnyland or make the way it would work aka come up with ideas for how it will work at disnyland.
         }
+
+        //For building script
+        for (int i = 0; i < allObjects.Count; i++) if (allObjects[i].name.Contains("_Tile")) IsAttachedDebug(GameObject.Find("ShipCore_Attach").GetComponent<PathfindingNode>(), allObjects[i].GetComponent<PathfindingNode>());
     }
 
     public void SelectedObjectFromGUI(int objectSelectedIndex)
@@ -346,8 +365,8 @@ public class PlayerController : MonoBehaviour
         {
             float distanceBetweenObjects = (fromObject.transform.localPosition - objectsThatContains[i].transform.localPosition).magnitude;
 
-            if (distanceBetweenObjects != xBoxColliderSize && distanceBetweenObjects != yBoxColliderSize) Debug.DrawLine(fromObject.transform.localPosition, objectsThatContains[i].transform.localPosition, Color.red);
-            if (distanceBetweenObjects == xBoxColliderSize || distanceBetweenObjects == yBoxColliderSize) Debug.DrawLine(fromObject.transform.localPosition, objectsThatContains[i].transform.localPosition, Color.green);
+            //if (distanceBetweenObjects != xBoxColliderSize && distanceBetweenObjects != yBoxColliderSize) Debug.DrawLine(fromObject.transform.localPosition, objectsThatContains[i].transform.localPosition, Color.red);
+            //if (distanceBetweenObjects == xBoxColliderSize || distanceBetweenObjects == yBoxColliderSize) Debug.DrawLine(fromObject.transform.localPosition, objectsThatContains[i].transform.localPosition, Color.green);
 
             if (distanceBetweenObjects == xBoxColliderSize || distanceBetweenObjects == yBoxColliderSize)
             {
@@ -378,7 +397,7 @@ public class PlayerController : MonoBehaviour
         return objectThatContains;
     }
 
-    private bool IsAttached(PathfindingNode startNode, PathfindingNode endNode)                 //Figure out why doors are bing unattached
+    private bool IsAttached(PathfindingNode startNode, PathfindingNode endNode)
     {
         bool attached = false;
 
@@ -432,6 +451,81 @@ public class PlayerController : MonoBehaviour
                         nextToCurrentNode.parentNode = currentNode;
 
                         if (!openPathNodes.Contains(nextToCurrentNode)) openPathNodes.Add(nextToCurrentNode);
+                    }
+                }
+            }
+        }
+        return attached;
+    }
+
+    private bool IsAttachedDebug(PathfindingNode startNode, PathfindingNode endNode)
+    {
+        bool attached = false;
+
+        List<PathfindingNode> openPathNodes = new List<PathfindingNode>();      //Nodes to be evaluated
+        HashSet<PathfindingNode> closedPathNodes = new HashSet<PathfindingNode>();    //Nodes that have been evaluated
+        openPathNodes.Add(startNode);
+
+        for (int i = 0; i < allObjects.Count; i++)
+        {
+            PathfindingNode pathfindingNode;
+
+            if (allObjects[i] && allObjects[i].name.Contains("_Tile"))
+            {
+                pathfindingNode = allObjects[i].GetComponent<PathfindingNode>();
+                pathfindingNode.gCost = (int)((Vector2)allObjects[i].transform.localPosition - (Vector2)startNode.transform.localPosition).magnitude;
+                pathfindingNode.hCost = (int)((Vector2)allObjects[i].transform.localPosition - (Vector2)endNode.transform.localPosition).magnitude;
+                pathfindingNode.fCost = pathfindingNode.gCost + pathfindingNode.hCost;
+            }
+            else if (!allObjects[i]) allObjects.RemoveAt(i);
+        }
+
+        while (openPathNodes.Count > 0)
+        {
+            PathfindingNode currentNode = openPathNodes[0];
+
+            for (int i = 0; i < openPathNodes.Count; i++) if (currentNode.fCost < openPathNodes[i].fCost || currentNode.fCost == openPathNodes[i].fCost && currentNode.hCost < openPathNodes[i].hCost) currentNode = openPathNodes[i];
+
+            openPathNodes.Remove(currentNode);
+            closedPathNodes.Add(currentNode);
+
+            if (currentNode == endNode)
+            {
+                attached = true;
+                break;
+            }
+
+            GameObject[] objectsNextToNode;
+            if (currentNode.GetComponent<BoxCollider2D>())
+            {
+                if (currentNode.GetComponent<BoxCollider2D>().size.y % 2 == 0)
+                {
+                    objectsNextToNode = FindObjectsNextToObjectDebug(currentNode.gameObject, "_Tile", 4, currentNode.GetComponent<BoxCollider2D>().size.x, currentNode.GetComponent<BoxCollider2D>().size.y - .5f);
+                }
+                else objectsNextToNode = FindObjectsNextToObjectDebug(currentNode.gameObject, "_Tile", 4, currentNode.GetComponent<BoxCollider2D>().size.x, currentNode.GetComponent<BoxCollider2D>().size.y);
+            }
+            else objectsNextToNode = FindObjectsNextToObjectDebug(currentNode.gameObject, "_Tile", 4, 1, 1);
+            
+            foreach (GameObject objectNextToCurrentNode in objectsNextToNode)
+            {
+                if (objectNextToCurrentNode)
+                {
+                    if (closedPathNodes.Contains(objectNextToCurrentNode.GetComponent<PathfindingNode>())) continue;
+
+                    PathfindingNode nextToCurrentNode = objectNextToCurrentNode.GetComponent<PathfindingNode>();
+
+                    int newMovementCost = currentNode.gCost + (int)((Vector2)currentNode.transform.localPosition - (Vector2)nextToCurrentNode.transform.localPosition).magnitude;
+                    if (newMovementCost < nextToCurrentNode.fCost || !openPathNodes.Contains(nextToCurrentNode))
+                    {
+                        nextToCurrentNode.gCost = newMovementCost;
+                        nextToCurrentNode.hCost = (int)((Vector2)nextToCurrentNode.transform.localPosition - (Vector2)endNode.transform.localPosition).magnitude;
+                        nextToCurrentNode.parentNode = currentNode;
+
+                        if (!openPathNodes.Contains(nextToCurrentNode))
+                        {
+                            openPathNodes.Add(nextToCurrentNode);
+                            Debug.DrawLine(currentNode.transform.position, objectNextToCurrentNode.transform.position, Color.blue);
+                        }
                     }
                 }
             }
