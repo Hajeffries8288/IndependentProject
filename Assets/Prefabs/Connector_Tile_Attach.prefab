@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8079729387321227967}
   - component: {fileID: -5537997937384578967}
-  - component: {fileID: -5508061818383771252}
+  - component: {fileID: 9212852736730315643}
   m_Layer: 0
   m_Name: Connector_Tile_Attach
   m_TagString: Untagged
@@ -83,7 +83,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &-5508061818383771252
+--- !u!114 &9212852736730315643
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

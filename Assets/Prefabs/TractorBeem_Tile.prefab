@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 812373217463246971}
   - component: {fileID: 8310630795854792075}
   - component: {fileID: 5423747225515184483}
-  - component: {fileID: 1020474044460368338}
+  - component: {fileID: -224993931160085926}
   m_Layer: 2
   m_Name: TractorBeem_Tile
   m_TagString: Untagged
@@ -4951,7 +4951,7 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
---- !u!114 &1020474044460368338
+--- !u!114 &-224993931160085926
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1026694421513174586}
   - component: {fileID: 8155932307722905629}
   - component: {fileID: 3141391488345363030}
-  - component: {fileID: 1096864489044169507}
+  - component: {fileID: -3090653137956598255}
   m_Layer: 0
   m_Name: TestingBlock_Tile_Attach
   m_TagString: Untagged
@@ -110,7 +110,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &1096864489044169507
+--- !u!114 &-3090653137956598255
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -122,6 +122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 180061f0c2f643942b8856127e516aab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hCost: 0
   gCost: 0
+  hCost: 0
   fCost: 0
+  parentNode: {fileID: 0}

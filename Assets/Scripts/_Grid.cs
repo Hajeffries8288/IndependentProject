@@ -2,31 +2,52 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class _Grid : MonoBehaviour
+public class _Grid : MonoBehaviour          //Needs to convert into 2D version
 {
-    BoxCollider2D boxCollider;
+    public LayerMask unwalkableMask;
+    public Vector2 gridWorldSize;
+    public float nodeRadius;
+    Node[,] grid;
 
-    public int gridWidth;
-    public int gridHight;
-    public float size;
+    float nodeDiamiter;
+    int gridSizeX, gridSizeY;
 
     private void Start()
     {
-        boxCollider = GetComponent<BoxCollider2D>();
+        nodeDiamiter = nodeRadius * 2;
+        gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiamiter);
+        gridSizeY = Mathf.RoundToInt(gridWorldSize.y / nodeDiamiter);
 
-        GridGenerate(gridWidth, gridHight, size);
+        GridGenerate();
     }
 
-    private void GridGenerate(int width, int hight, float size)
+    private void GridGenerate()
     {
-        Vector3 localBottomLeftTile = transform.localPosition - Vector3.right * width / 2 - Vector3.up * hight / 2;
+        grid = new Node[gridSizeX, gridSizeY];
+        Vector3 localBottomLeftTile = transform.localPosition - Vector3.right * gridWorldSize.x/2 - Vector3.up * gridWorldSize.y/2;
 
-        for (int x = width; x > 0; x--)
+        for (int x = 0; x < gridSizeX; x++)
         {
-            for (int y = hight; y > 0; y--)
+            for (int y = 0; y < gridSizeY; y++)
             {
-                Vector3 localPoint = localBottomLeftTile - Vector3.right * (x * size) - Vector3.up * (y * size);
-                //Needs to check weather or not there is a collider within the given area for the size of the tiles in the grid
+                Vector3 worldPoint = localBottomLeftTile + Vector3.right * (x * nodeDiamiter + nodeRadius) + Vector3.up * (y * nodeDiamiter + nodeRadius);
+                bool walkable = Physics.CheckSphere(worldPoint, nodeRadius, unwalkableMask);
+                print(worldPoint + " " + walkable);
+                grid[x, y] = new Node(walkable, worldPoint);
+            }
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireCube(transform.localPosition, new Vector3(gridWorldSize.x, gridWorldSize.y, 0));
+
+        if (grid != null)
+        {
+            foreach (Node n in grid)
+            {
+                Gizmos.color = (n.walkable) ? Color.white : Color.red;
+                Gizmos.DrawCube(n.worldPosition, new Vector3(1, 1, 1) * (nodeDiamiter -.1f));
             }
         }
     }
