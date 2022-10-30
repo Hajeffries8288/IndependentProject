@@ -4,15 +4,17 @@ using System.Collections;
 public class Node : IHeapItem<Node>
 {
 
-	public bool walkable;
-	public Vector2 worldPosition;
-	public int gridX;
-	public int gridY;
+	[HideInInspector] public bool walkable;
+	[HideInInspector] public bool isCoreNode;
+	[HideInInspector] public Vector2 worldPosition;
+	[HideInInspector] public int gridX;
+	[HideInInspector] public int gridY;
 
-	public int gCost;
-	public int hCost;
-	public Node parent;
-	int heapIndex;
+	[HideInInspector] public int gCost;
+	[HideInInspector] public int hCost;
+	[HideInInspector] public Node parent;
+
+	private int heapIndex;
 
 	public Node(bool _walkable, Vector2 _worldPos, int _gridX, int _gridY)
 	{

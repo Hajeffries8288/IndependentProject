@@ -96,7 +96,6 @@ GameObject:
   - component: {fileID: 8310630795854792075}
   - component: {fileID: 1656253757024105728}
   - component: {fileID: 5423747225515184483}
-  - component: {fileID: -224993931160085926}
   m_Layer: 7
   m_Name: TractorBeem_Tile
   m_TagString: Untagged
@@ -4951,19 +4950,3 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
---- !u!114 &-224993931160085926
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5959432368288220736}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 180061f0c2f643942b8856127e516aab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gCost: 0
-  hCost: 0
-  fCost: 0
-  parentNode: {fileID: 0}

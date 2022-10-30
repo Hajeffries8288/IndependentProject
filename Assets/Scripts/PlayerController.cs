@@ -66,14 +66,14 @@ public class PlayerController : MonoBehaviour
 
         Clicking();
 
-        Building();     //This needs another clean up           NOTE: This needs to have GetNeighbours from _Grid intigrated into this
+        Building();
 
-        Destroying();   //NOTE: This needs to have GetNeighbours from _Grid intigrated into this
+        Destroying();
 
         Debuging();
     }
 
-    private void OnDrawGizmos()     //This is for debuging display
+    private void OnDrawGizmos()
     {
         
     }
@@ -119,7 +119,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Building()         //This needs another clean up           NOTE: This needs to have GetNeighbours from _Grid intigrated into this
+    private void Building()
     {
         if (building)
         {
@@ -211,7 +211,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            GameObject closestTileObjectToInstBuildableObject = FindClosestObjectThatContains(buildingTile, "_Tile");       //Figgure out why this variable has to be here
+            GameObject closestTileObjectToInstBuildableObject = FindClosestObjectThatContains(buildingTile, "_Tile");   //This variable needs to be here
 
             //Places/Builds the tile
             if (!destroy && Input.GetButton("Fire1") && canPlace && buildingTile.transform.localPosition != closestTileObjectToInstBuildableObject.transform.localPosition)
@@ -235,7 +235,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Destroying()       //NOTE: This needs to have GetNeighbours from _Grid intigrated into this
+    private void Destroying()
     {
         if (destroy)
         {
@@ -259,6 +259,27 @@ public class PlayerController : MonoBehaviour
             {
                 allObjects.Remove(closestTileObjectToCheck);
                 Destroy(closestTileObjectToCheck);
+                grid.CreateGrid();
+
+                GameObject disconnectedObjectParent = new GameObject();
+                Rigidbody2D disconnectedObjectParentRB = disconnectedObjectParent.AddComponent<Rigidbody2D>();
+                disconnectedObjectParentRB.gravityScale = 0;
+                disconnectedObjectParentRB.useAutoMass = true;
+                disconnectedObjectParentRB.velocity = ship.GetComponent<Rigidbody2D>().velocity;
+
+                for (int i = 0; i < allObjects.Count; i++)
+                {
+                    if (allObjects[i].name.Contains("_Tile"))
+                    {
+                        if (!IsAttached(allObjects[i].transform.localPosition, GameObject.Find("ShipCore_Attach").transform.localPosition))
+                        {
+                            allObjects[i].transform.parent = disconnectedObjectParent.transform;
+                            allObjects[i].layer = 0;
+                            allObjects[i].name = "MOTHERGODDAMBFUCKER";
+                        }
+                    }
+                }
+
                 grid.CreateGrid();
             }
 
@@ -447,34 +468,20 @@ public class PlayerController : MonoBehaviour
         return objectThatContains;
     }
 
-    private bool IsAttached(PathfindingNode startNode, PathfindingNode endNode)
+    private bool IsAttached(Vector2 startPos, Vector2 endPos)
     {
         bool attached = false;
 
-        List<PathfindingNode> openPathNodes = new List<PathfindingNode>();      //Nodes to be evaluated
-        HashSet<PathfindingNode> closedPathNodes = new HashSet<PathfindingNode>();    //Nodes that have been evaluated
+        Node startNode = grid.NodeFromWorldPoint(startPos);
+        Node endNode = grid.NodeFromWorldPoint(endPos);
+
+        List<Node> openPathNodes = new List<Node>();      //Nodes to be evaluated
+        HashSet<Node> closedPathNodes = new HashSet<Node>();    //Nodes that have been evaluated
         openPathNodes.Add(startNode);
-
-        for (int i = 0; i < allObjects.Count; i++)
-        {
-            PathfindingNode pathfindingNode;
-
-            if (allObjects[i] && allObjects[i].name.Contains("_Tile"))
-            {
-                pathfindingNode = allObjects[i].GetComponent<PathfindingNode>();
-                pathfindingNode.gCost = (int)((Vector2)allObjects[i].transform.localPosition - (Vector2)startNode.transform.localPosition).magnitude;
-                pathfindingNode.hCost = (int)((Vector2)allObjects[i].transform.localPosition - (Vector2)endNode.transform.localPosition).magnitude;
-                pathfindingNode.fCost = pathfindingNode.gCost + pathfindingNode.hCost;
-            }
-            else if (!allObjects[i])
-            {
-                allObjects.RemoveAt(i);
-            }
-        }
 
         while (openPathNodes.Count > 0)
         {
-            PathfindingNode currentNode = openPathNodes[0];
+            Node currentNode = openPathNodes[0];
 
             for (int i = 0; i < openPathNodes.Count; i++)
             {
@@ -493,121 +500,39 @@ public class PlayerController : MonoBehaviour
                 break;
             }
 
-            GameObject[] objectsNextToNode = FindObjectsNextToObject(currentNode.gameObject, "_Tile", 4);
-            foreach (GameObject objectNextToCurrentNode in objectsNextToNode)
+            foreach (Node neighbour in grid.GetNeighbours(currentNode))
             {
-                if (objectNextToCurrentNode)
+                if (!neighbour.walkable || closedPathNodes.Contains(neighbour))
                 {
-                    if (closedPathNodes.Contains(objectNextToCurrentNode.GetComponent<PathfindingNode>()))
+                    continue;
+                }
+
+                int newMovementCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbour);
+                if (newMovementCostToNeighbour < neighbour.gCost || !openPathNodes.Contains(neighbour))
+                {
+                    neighbour.gCost = newMovementCostToNeighbour;
+                    neighbour.hCost = GetDistance(neighbour, endNode);
+                    neighbour.parent = currentNode;
+
+                    if (!openPathNodes.Contains(neighbour))
                     {
-                        continue;
-                    }
-
-                    PathfindingNode nextToCurrentNode = objectNextToCurrentNode.GetComponent<PathfindingNode>();
-
-                    int newMovementCost = currentNode.gCost + (int)((Vector2)currentNode.transform.localPosition - (Vector2)nextToCurrentNode.transform.localPosition).magnitude;
-                    if (newMovementCost < nextToCurrentNode.fCost || !openPathNodes.Contains(nextToCurrentNode))
-                    {
-                        nextToCurrentNode.gCost = newMovementCost;
-                        nextToCurrentNode.hCost = (int)((Vector2)nextToCurrentNode.transform.localPosition - (Vector2)endNode.transform.localPosition).magnitude;
-                        nextToCurrentNode.parentNode = currentNode;
-
-                        if (!openPathNodes.Contains(nextToCurrentNode))
-                        {
-                            openPathNodes.Add(nextToCurrentNode);
-                        }
+                        openPathNodes.Add(neighbour);
                     }
                 }
             }
         }
         return attached;
-    }       //This needs to be redone with _Grid
+    }
 
-    private bool IsAttachedDebug(PathfindingNode startNode, PathfindingNode endNode)
+    private int GetDistance(Node nodeA, Node nodeB)
     {
-        bool attached = false;
+        int dstX = Mathf.Abs(nodeA.gridX - nodeB.gridX);
+        int dstY = Mathf.Abs(nodeA.gridY - nodeB.gridY);
 
-        List<PathfindingNode> openPathNodes = new List<PathfindingNode>();      //Nodes to be evaluated
-        HashSet<PathfindingNode> closedPathNodes = new HashSet<PathfindingNode>();    //Nodes that have been evaluated
-        openPathNodes.Add(startNode);
-
-        for (int i = 0; i < allObjects.Count; i++)
+        if (dstX > dstY)
         {
-            PathfindingNode pathfindingNode;
-
-            if (allObjects[i] && allObjects[i].name.Contains("_Tile"))
-            {
-                pathfindingNode = allObjects[i].GetComponent<PathfindingNode>();
-                pathfindingNode.gCost = (int)((Vector2)allObjects[i].transform.localPosition - (Vector2)startNode.transform.localPosition).magnitude;
-                pathfindingNode.hCost = (int)((Vector2)allObjects[i].transform.localPosition - (Vector2)endNode.transform.localPosition).magnitude;
-                pathfindingNode.fCost = pathfindingNode.gCost + pathfindingNode.hCost;
-            }
-            else if (!allObjects[i])
-            {
-                allObjects.RemoveAt(i);
-            }
+            return 14 * dstY + 10 * (dstX - dstY);
         }
-
-        while (openPathNodes.Count > 0)
-        {
-            PathfindingNode currentNode = openPathNodes[0];
-
-            for (int i = 1; i < openPathNodes.Count; i++) if (currentNode.fCost < openPathNodes[i].fCost || currentNode.fCost == openPathNodes[i].fCost && currentNode.hCost < openPathNodes[i].hCost) currentNode = openPathNodes[i];      //Current node is = to the node with the lowest fCost
-
-            openPathNodes.Remove(currentNode);
-            closedPathNodes.Add(currentNode);
-
-            if (currentNode == endNode)
-            {
-                attached = true;
-                break;
-            }
-
-            List<GameObject> objectsNextToNode;
-            if (currentNode.GetComponent<BoxCollider2D>())
-            {
-                if (currentNode.GetComponent<BoxCollider2D>().size.y % 2 == 0)
-                {
-                    objectsNextToNode = FindObjectsNextToObjectDebug(currentNode.gameObject, "_Tile", 4, currentNode.GetComponent<BoxCollider2D>().size.x, currentNode.GetComponent<BoxCollider2D>().size.y - .5f);
-                }
-                else
-                {
-                    objectsNextToNode = FindObjectsNextToObjectDebug(currentNode.gameObject, "_Tile", 4, currentNode.GetComponent<BoxCollider2D>().size.x, currentNode.GetComponent<BoxCollider2D>().size.y);
-                }
-            }
-            else
-            {
-                objectsNextToNode = FindObjectsNextToObjectDebug(currentNode.gameObject, "_Tile", 4, 1, 1);
-            }
-            
-            foreach (GameObject objectNextToCurrentNode in objectsNextToNode)
-            {
-                if (objectNextToCurrentNode)
-                {
-                    Debug.DrawLine(currentNode.transform.position, objectNextToCurrentNode.transform.position, Color.blue);
-
-                    if (closedPathNodes.Contains(objectNextToCurrentNode.GetComponent<PathfindingNode>()))
-                    {
-                        continue;
-                    }
-
-                    PathfindingNode nextToCurrentNode = objectNextToCurrentNode.GetComponent<PathfindingNode>();
-
-                    int newMovementCost = currentNode.gCost + (int)((Vector2)currentNode.transform.localPosition - (Vector2)nextToCurrentNode.transform.localPosition).magnitude;
-                    if (newMovementCost < nextToCurrentNode.fCost || !openPathNodes.Contains(nextToCurrentNode))
-                    {
-                        nextToCurrentNode.gCost = newMovementCost;
-                        nextToCurrentNode.hCost = (int)((Vector2)nextToCurrentNode.transform.localPosition - (Vector2)endNode.transform.localPosition).magnitude;
-                        nextToCurrentNode.parentNode = currentNode;
-
-                        if (!openPathNodes.Contains(nextToCurrentNode))
-                        {
-                            openPathNodes.Add(nextToCurrentNode);
-                        }
-                    }
-                }
-            }
-        }
-        return attached;
-    }       //This needs to be redone with _Grid
+        else return 14*dstX + 10 * (dstY - dstX);
+    }
 }

@@ -5,15 +5,17 @@ using System.Collections.Generic;
 public class _Grid : MonoBehaviour
 {
 
+	public static Vector2 coreNodePos;
+
 	[HideInInspector] public bool displayGridGizmos;
 
 	public LayerMask walkableMask;
 	public Vector2 gridWorldSize;
 	public float nodeRadius;
 
-	Node[,] grid;
-	float nodeDiameter;
-	int gridSizeX, gridSizeY;
+	private Node[,] grid;
+	private float nodeDiameter;
+	private int gridSizeX, gridSizeY;
 
 	private void Awake()
 	{
@@ -35,14 +37,14 @@ public class _Grid : MonoBehaviour
 	public void CreateGrid()
 	{
 		grid = new Node[gridSizeX, gridSizeY];
-		Vector2 worldBottomLeft = (Vector2)transform.position - Vector2.right * gridWorldSize.x / 2 - Vector2.up * gridWorldSize.y / 2;
+		Vector2 worldBottomLeft = (Vector2)transform.localPosition - Vector2.right * gridWorldSize.x / 2 - Vector2.up * gridWorldSize.y / 2;
 
 		for (int x = 0; x < gridSizeX; x++)
 		{
 			for (int y = 0; y < gridSizeY; y++)
 			{
 				Vector2 worldPoint = worldBottomLeft + Vector2.right * (x * nodeDiameter + nodeRadius) + Vector2.up * (y * nodeDiameter + nodeRadius);
-				bool walkable = (Physics2D.OverlapCircle(worldPoint, nodeRadius, walkableMask) != null); // if no collider2D is returned by overlap circle, then this node is not walkable
+				bool walkable = Physics2D.OverlapCircle(worldPoint, nodeRadius, walkableMask) != null; // if no collider2D is returned by overlap circle, then this node is not walkable
 
 				grid[x, y] = new Node(walkable, worldPoint, x, y);
 			}
@@ -91,16 +93,20 @@ public class _Grid : MonoBehaviour
 
 	void OnDrawGizmos()
 	{
-		Gizmos.DrawWireCube(transform.position, new Vector2(gridWorldSize.x, gridWorldSize.y));
+		Gizmos.DrawWireCube(transform.localPosition, new Vector2(gridWorldSize.x, gridWorldSize.y));
 		if (grid != null && displayGridGizmos)
 		{
 			foreach (Node n in grid)
 			{
 				Gizmos.color = Color.red;
-				if (n.walkable)
+				if (n.walkable && !n.isCoreNode)
                 {
 					Gizmos.color = Color.white;
 				}
+				else if (n.isCoreNode)
+                {
+					Gizmos.color = Color.blue;
+                }
 
 				Gizmos.DrawCube(n.worldPosition, Vector3.one * (nodeDiameter - .1f));
 			}
