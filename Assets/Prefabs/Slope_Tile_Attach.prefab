@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7440315184212393235}
   - component: {fileID: -610492910343034932}
   - component: {fileID: -6901190007323476887}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Slope_Tile_Attach
   m_TagString: Untagged
   m_Icon: {fileID: 0}

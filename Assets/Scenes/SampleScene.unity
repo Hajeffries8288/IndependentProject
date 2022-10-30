@@ -784,7 +784,7 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 4
+          m_IntArgument: 3
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -1178,12 +1178,9 @@ MonoBehaviour:
   - {fileID: 4077217966821539177, guid: 7422af2af92777041836e5b230a6e4d5, type: 3}
   - {fileID: 1469428807669936033, guid: ad85920373ff74c47ae29ba8662ecbc7, type: 3}
   - {fileID: 5959432368288220736, guid: 7b2df05c4c8a8304db9e2ab070df85f3, type: 3}
-  - {fileID: 2679923453725695116, guid: 454dc77676b01184eb5bc57e5549f83e, type: 3}
   - {fileID: 7948244545504485586, guid: b8ab04e2fed8e2a4c91b9727fcce74af, type: 3}
   - {fileID: 5857771102067800630, guid: 2406451166400ab4d940d26361daf75a, type: 3}
-  rows: 500
-  cols: 500
-  tileSize: 1
+  destroyGameObject: {fileID: 2679923453725695116, guid: 454dc77676b01184eb5bc57e5549f83e, type: 3}
 --- !u!1001 &637047433
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1996,6 +1993,72 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8589679272048943386, guid: e94134bd644d57f4686e9f76661256fd, type: 3}
   m_PrefabInstance: {fileID: 1008134179}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1123695777
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1123695778}
+  - component: {fileID: 1123695780}
+  - component: {fileID: 1123695779}
+  m_Layer: 0
+  m_Name: ThisLetsTheGUIWork(DONOTDELEATE!)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1123695778
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1123695777}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -2892.8572}
+  m_LocalScale: {x: 32.142857, y: 32.142857, z: 32.142857}
+  m_Children: []
+  m_Father: {fileID: 1661766252}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1123695779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1123695777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalAxis: Horizontal
+  m_VerticalAxis: Vertical
+  m_SubmitButton: Submit
+  m_CancelButton: Cancel
+  m_InputActionsPerSecond: 10
+  m_RepeatDelay: 0.5
+  m_ForceModuleActive: 0
+--- !u!114 &1123695780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1123695777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
 --- !u!1001 &1229013955
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2147,8 +2210,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 617706664}
         m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
-        m_MethodName: SelectedObjectFromGUI
-        m_Mode: 3
+        m_MethodName: DestroySelected
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -2313,11 +2376,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 506a943f00e58fe4f961d06c8f33d04b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unwalkableMask:
+  displayGridGizmos: 0
+  walkableMask:
     serializedVersion: 2
     m_Bits: 128
   gridWorldSize: {x: 10, y: 10}
-  nodeRadius: 0.5
+  nodeRadius: 0.2
 --- !u!1001 &1474571254
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2609,6 +2673,7 @@ RectTransform:
   - {fileID: 381908979}
   - {fileID: 1883742615}
   - {fileID: 315725955}
+  - {fileID: 1123695778}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2887,7 +2952,7 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 5
+          m_IntArgument: 4
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
