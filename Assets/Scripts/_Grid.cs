@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 public class _Grid : MonoBehaviour
 {
-
 	public static Vector2 coreNodePos;
 
 	[HideInInspector] public bool displayGridGizmos;
@@ -13,9 +12,9 @@ public class _Grid : MonoBehaviour
 	public Vector2 gridWorldSize;
 	public float nodeRadius;
 
-	private Node[,] grid;
-	private float nodeDiameter;
-	private int gridSizeX, gridSizeY;
+	Node[,] grid;
+	float nodeDiameter;
+	int gridSizeX, gridSizeY;
 
 	private void Awake()
 	{
@@ -37,7 +36,7 @@ public class _Grid : MonoBehaviour
 	public void CreateGrid()
 	{
 		grid = new Node[gridSizeX, gridSizeY];
-		Vector2 worldBottomLeft = (Vector2)transform.localPosition - Vector2.right * gridWorldSize.x / 2 - Vector2.up * gridWorldSize.y / 2;
+		Vector2 worldBottomLeft = (Vector2)transform.position - Vector2.right * gridWorldSize.x / 2 - Vector2.up * gridWorldSize.y / 2;
 
 		for (int x = 0; x < gridSizeX; x++)
 		{
@@ -93,7 +92,7 @@ public class _Grid : MonoBehaviour
 
 	void OnDrawGizmos()
 	{
-		Gizmos.DrawWireCube(transform.localPosition, new Vector2(gridWorldSize.x, gridWorldSize.y));
+		Gizmos.DrawWireCube(transform.position, new Vector2(gridWorldSize.x, gridWorldSize.y));
 		if (grid != null && displayGridGizmos)
 		{
 			foreach (Node n in grid)

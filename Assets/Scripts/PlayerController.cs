@@ -10,36 +10,38 @@ public class PlayerController : MonoBehaviour
     public float shiftSpeed;
     public float maxZoomOut;
 
-    private float mouseScroll;
-    private GameObject ship;
-    private Camera mainCamera;
+    float mouseScroll;
+    GameObject ship;
+    Camera mainCamera;
 
-    //Building                                  NOTE: Try to find a way to have less bools
+    //Building
     [Header("Building")]
     public static bool building;
     public float multible;
     public GameObject[] buildableObjects;
 
-    private GameObject buildingTile;
-    private int buildingIndex;
-    private int tilesNextToObjectBuildingIndex;
-    private bool autoRotate;
-    private bool rotate;
-    private bool destroy;
+    GameObject buildingTile;
+    int buildingIndex;
+    int tilesNextToObjectBuildingIndex;
+    bool autoRotate;
+    bool rotate;
+
+    //Destroying
+    bool destroy;
 
     //DestroyPlacedTiles
     [Header("DestroyPlacedTiles")]
     public GameObject destroyGameObject;
 
-    private GameObject instDestroyGameObject;
+    GameObject instDestroyGameObject;
 
     //AllObjects
     [HideInInspector] public static List<GameObject> allObjects;
 
     //Grid
-    private _Grid grid;
+    _Grid grid;
 
-    private void Start()        // Start is called before the first frame update
+    private void Start()        // Start is called before the first frame update            //NOTE: Maybe change this to Awake()        Figure out if GameObject.Find("TestoWesto") is good in Start()
     {
         //Movement
         mouseScroll = 5;
@@ -55,11 +57,6 @@ public class PlayerController : MonoBehaviour
         grid = GameObject.Find("GridGen").GetComponent<_Grid>();
     }
 
-    private void Awake()        //Awake is called before the start
-    {
-        
-    }
-
     private void Update()       // Update is called once per frame
     {
         Movement();
@@ -71,11 +68,6 @@ public class PlayerController : MonoBehaviour
         Destroying();
 
         Debuging();
-    }
-
-    private void OnDrawGizmos()
-    {
-        
     }
 
     //Below this is the main functions
@@ -130,16 +122,16 @@ public class PlayerController : MonoBehaviour
             }
 
             //Creates the tile that the player is trying to build
-            if (!buildingTile)
-            {
-                buildingTile = Instantiate(buildableObjects[buildingIndex], ship.transform);
-            }
+            if (!buildingTile) buildingTile = Instantiate(buildableObjects[buildingIndex], ship.transform);
 
             //Local variables 
-            BoxCollider2D tileBuildingBoxCollider = buildingTile.GetComponent<BoxCollider2D>();
             Collider2D tileBuildingCollider = buildingTile.GetComponent<Collider2D>();
+            BoxCollider2D tileBuildingBoxCollider = buildingTile.GetComponent<BoxCollider2D>();
             GameObject[] tilesNextToTileBuilding;
             bool canPlace = false;
+
+            //Checks if there is a collider and if so then disable it 
+            if (tileBuildingCollider) tileBuildingCollider.enabled = false;
 
             //This is how the tile system works for placeing the tiles in the correct positions
             buildingTile.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -148,10 +140,7 @@ public class PlayerController : MonoBehaviour
             tilesNextToTileBuilding = tileBuildingBoxCollider.size.y % 2 == 0 ? FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, tileBuildingBoxCollider.size.x, tileBuildingBoxCollider.size.y - .5f).ToArray() : FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, tileBuildingBoxCollider.size.x, tileBuildingBoxCollider.size.y).ToArray();
 
             //Checks if there is a collider and if so then disable it 
-            if (tileBuildingCollider)
-            {
-                tileBuildingCollider.enabled = false;
-            }
+            if (tileBuildingCollider) tileBuildingCollider.enabled = false;
 
             //Checks if this object should be auto rotated to a tile before placeing 
             if (autoRotate)
@@ -197,19 +186,10 @@ public class PlayerController : MonoBehaviour
             }
 
             //Checks if the object can be rotated by the player
-            if (rotate && Input.GetKeyDown(KeyCode.R))
-            {
-                buildingTile.transform.localRotation *= Quaternion.Euler(0, 0, 90);
-            }
+            if (rotate && Input.GetKeyDown(KeyCode.R)) buildingTile.transform.localRotation *= Quaternion.Euler(0, 0, 90);
 
             //This is checking if there is a tile next to the tile the player is trying to build
-            for (int i = 0; i < tilesNextToTileBuilding.Length; i++)
-            {
-                if (tilesNextToTileBuilding[i] && tilesNextToTileBuilding[i].name.Contains("_Attach"))
-                {
-                    canPlace = true;
-                }
-            }
+            for (int i = 0; i < tilesNextToTileBuilding.Length; i++) if (tilesNextToTileBuilding[i] && tilesNextToTileBuilding[i].name.Contains("_Attach")) canPlace = true;
 
             GameObject closestTileObjectToInstBuildableObject = FindClosestObjectThatContains(buildingTile, "_Tile");   //This variable needs to be here
 
@@ -245,37 +225,35 @@ public class PlayerController : MonoBehaviour
                 building = false;
             }
 
-            if (!instDestroyGameObject)
-            {
-                instDestroyGameObject = Instantiate(destroyGameObject, ship.transform);
-            }
+            if (!instDestroyGameObject) instDestroyGameObject = Instantiate(destroyGameObject, ship.transform);
 
             instDestroyGameObject.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             instDestroyGameObject.transform.localPosition = new Vector2(Mathf.Round(instDestroyGameObject.transform.localPosition.x / multible) * multible, Mathf.Round(instDestroyGameObject.transform.localPosition.y / multible) * multible);
 
             GameObject closestTileObjectToCheck = FindClosestObjectThatContains(instDestroyGameObject, "_Tile");
 
-            if (Input.GetButtonDown("Fire1") && instDestroyGameObject.transform.localPosition == closestTileObjectToCheck.transform.localPosition)
+            if (Input.GetButtonDown("Fire1") && instDestroyGameObject.transform.localPosition == closestTileObjectToCheck.transform.localPosition)  //This got an error: NullReferenceException: Object reference not set to an instance of an object PlayerController.Destroying()(at Assets / Scripts / PlayerController.cs:235) PlayerController.Update()(at Assets / Scripts / PlayerController.cs:68)
             {
                 allObjects.Remove(closestTileObjectToCheck);
                 Destroy(closestTileObjectToCheck);
                 grid.CreateGrid();
 
-                GameObject disconnectedObjectParent = new GameObject();
+                GameObject disconnectedObjectParent = new GameObject("UnattachedObjectParent");
                 Rigidbody2D disconnectedObjectParentRB = disconnectedObjectParent.AddComponent<Rigidbody2D>();
                 disconnectedObjectParentRB.gravityScale = 0;
                 disconnectedObjectParentRB.useAutoMass = true;
                 disconnectedObjectParentRB.velocity = ship.GetComponent<Rigidbody2D>().velocity;
+                disconnectedObjectParent.transform.parent = GameObject.Find("UnattachedObjects").transform;
 
                 for (int i = 0; i < allObjects.Count; i++)
                 {
-                    if (allObjects[i].name.Contains("_Tile"))
+                    if (allObjects[i] && allObjects[i].name.Contains("_Tile"))
                     {
                         if (!IsAttached(allObjects[i].transform.localPosition, GameObject.Find("ShipCore_Attach").transform.localPosition))
                         {
                             allObjects[i].transform.parent = disconnectedObjectParent.transform;
                             allObjects[i].layer = 0;
-                            allObjects[i].name = "MOTHERGODDAMBFUCKER";
+                            allObjects[i].name = "UslessUnattachedObject";
                         }
                     }
                 }
@@ -322,25 +300,12 @@ public class PlayerController : MonoBehaviour
 
     public void SelectedObjectFromGUI(int objectSelectedIndex)
     {
-        if (buildingTile)
-        {
-            Destroy(buildingTile);
-        
-        }
+        if (buildingTile) Destroy(buildingTile);
         buildingIndex = objectSelectedIndex;
 
-        if (buildingIndex == 1) //Slope
-        {
-            destroy = false;   
-        }
-        if (buildingIndex == 2) //Tractorbeem
-        {
-            autoRotate = true;
-        }
-        if (buildingIndex == 3) //Connector
-        {
-            autoRotate = true;
-        }
+        if (buildingIndex == 1) destroy = false; //Slope
+        if (buildingIndex == 2) autoRotate = true; //Tractorbeem
+        if (buildingIndex == 3) autoRotate = true; //Connector 
 
         building = true;
     }
@@ -348,7 +313,7 @@ public class PlayerController : MonoBehaviour
     public void DestroySelected()
     {
         destroy = true;
-    }
+    }       //Goes with the SelectedObjectFromGUI method
 
     private GameObject FindClosestObjectThatContains(GameObject fromObject, string contains)
     {
@@ -388,14 +353,8 @@ public class PlayerController : MonoBehaviour
 
         for (int i = 0; i < allObjects.Count; i++)
         {
-            if (allObjects[i] && allObjects[i].name.Contains(contains))
-            {
-                objectsThatContains.Add(allObjects[i]);
-            }
-            else if (!allObjects[i])
-            {
-                allObjects.RemoveAt(i);
-            }
+            if (allObjects[i] && allObjects[i].name.Contains(contains)) objectsThatContains.Add(allObjects[i]);
+            else if (!allObjects[i]) allObjects.RemoveAt(i);
         }
 
         for (int i = 0; i < objectsThatContains.Count; i++)
@@ -414,7 +373,7 @@ public class PlayerController : MonoBehaviour
         }
 
         return objectsToReturn;
-    }
+    }       //Maybe rename or something also run tests
 
     private List<GameObject> FindObjectsNextToObjectDebug(GameObject fromObject, string contains, int ammountOfObjects, float xBoxColliderSize, float yBoxColliderSize)
     {
@@ -423,31 +382,19 @@ public class PlayerController : MonoBehaviour
 
         for (int i = 0; i < allObjects.Count; i++)
         {
-            if (allObjects[i] && allObjects[i].name.Contains(contains))
-            {
-                objectsThatContains.Add(allObjects[i]);
-            }
-            else if (!allObjects[i])
-            {
-                allObjects.RemoveAt(i);
-            }
+            if (allObjects[i] && allObjects[i].name.Contains(contains)) objectsThatContains.Add(allObjects[i]);
+            else if (!allObjects[i]) allObjects.RemoveAt(i);
         }
 
         for (int i = 0; i < objectsThatContains.Count; i++)
         {
             float distanceBetweenObjects = (fromObject.transform.localPosition - objectsThatContains[i].transform.localPosition).magnitude;
 
-            //if (distanceBetweenObjects != xBoxColliderSize && distanceBetweenObjects != yBoxColliderSize) Debug.DrawLine(fromObject.transform.localPosition, objectsThatContains[i].transform.localPosition, Color.red);
-            //if (distanceBetweenObjects == xBoxColliderSize || distanceBetweenObjects == yBoxColliderSize) Debug.DrawLine(fromObject.transform.localPosition, objectsThatContains[i].transform.localPosition, Color.green);
-
-            if (distanceBetweenObjects == xBoxColliderSize || distanceBetweenObjects == yBoxColliderSize)
-            {
-                objectsToReturn.Add(objectsThatContains[i]);
-            }
+            if (distanceBetweenObjects == xBoxColliderSize || distanceBetweenObjects == yBoxColliderSize) objectsToReturn.Add(objectsThatContains[i]);
         }
 
         return objectsToReturn;
-    }
+    }   //!!!!!
 
     private GameObject FindObjectInDistanceThatContains(GameObject fromObject, string contains, float distance)
     {
@@ -455,14 +402,8 @@ public class PlayerController : MonoBehaviour
 
         for (int i = 0; i < allObjects.Count; i++)
         {
-            if (allObjects[i] && allObjects[i].name.Contains(contains) && (fromObject.transform.position - allObjects[i].transform.position).magnitude <= distance)
-            {
-                objectThatContains = allObjects[i];
-            }
-            if (!allObjects[i])
-            {
-                allObjects.RemoveAt(i);
-            }
+            if (allObjects[i] && allObjects[i].name.Contains(contains) && (fromObject.transform.position - allObjects[i].transform.position).magnitude <= distance) objectThatContains = allObjects[i];
+            if (!allObjects[i]) allObjects.RemoveAt(i);
         }
 
         return objectThatContains;
@@ -522,7 +463,7 @@ public class PlayerController : MonoBehaviour
             }
         }
         return attached;
-    }
+    }               //This is detecting corner tiles maybe mess with the size of the nodes or something
 
     private int GetDistance(Node nodeA, Node nodeB)
     {

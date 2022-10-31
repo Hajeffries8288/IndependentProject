@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //NOTE: Maybe try to make a better name for this script but for now this should work
+//NOTE: Fix the astroyids colliders to be the correct size
 //NOTE: Find a way that takes way less variables 
 
 public class SpawningThings : MonoBehaviour
 {
-    //Astroyids
+    //Astroyids                 NOTE: Make this with way less variables you dont need all of these also orginize them
     [Header("Astroyids")]
     [HideInInspector] public static List<GameObject> astroyidsCreated;
     public float distanceToSpawnAstroyids;
@@ -22,7 +23,7 @@ public class SpawningThings : MonoBehaviour
     GameObject astroidParent;
     bool createAstroyid;
 
-    //Misc
+    //Misc              NOTE: Name this something better then Misc
     bool[] coroutineStart;
 
     // Start is called before the first frame update
@@ -32,9 +33,9 @@ public class SpawningThings : MonoBehaviour
         astroidParent = GameObject.Find("AstroyidParent");
         timeInbetweenCheckingAstroyid = Random.Range(0, maximumTimeTellNextCheckForAstroyid);
 
-        //Misc
+        //Misc          NOTE: Name this something better then Misc
         astroyidsCreated = new List<GameObject>{};
-        coroutineStart = new bool[10];          //NOTE: This number is prone to change
+        coroutineStart = new bool[10];          //NOTE: This number will cange to the ammount of coroutineStart variables that are needed
         for (int i = 0; i < coroutineStart.Length; i++) coroutineStart[i] = true;
     }
 
