@@ -85,21 +85,6 @@ public class PlayerController : MonoBehaviour
         //Scroll
         transform.Translate(velocity * Time.deltaTime);
         mainCamera.orthographicSize = mouseScroll;
-
-        //Follow/Unfollow Ship
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            if (transform.parent == null)
-            {
-                transform.parent = ship.transform;
-                transform.localPosition = Vector3.zero;
-                transform.localRotation = Quaternion.identity;
-            }
-            else
-            {
-                transform.parent = null;
-            }
-        }
     }
 
     private void Clicking()
@@ -136,8 +121,16 @@ public class PlayerController : MonoBehaviour
             //This is how the tile system works for placeing the tiles in the correct positions
             buildingTile.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-            buildingTile.transform.localPosition = tileBuildingBoxCollider.size.y % 2 == 0 ? new Vector3(Mathf.Round(buildingTile.transform.localPosition.x / multible) * multible, Mathf.Round(buildingTile.transform.localPosition.y / multible) * multible - .5f, 0) : new Vector3(Mathf.Round(buildingTile.transform.localPosition.x / multible) * multible, Mathf.Round(buildingTile.transform.localPosition.y / multible) * multible, 0);
-            tilesNextToTileBuilding = tileBuildingBoxCollider.size.y % 2 == 0 ? FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, tileBuildingBoxCollider.size.x, tileBuildingBoxCollider.size.y - .5f).ToArray() : FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, tileBuildingBoxCollider.size.x, tileBuildingBoxCollider.size.y).ToArray();
+            Vector3 buildingTileLocalPosition = buildingTile.transform.localPosition;
+            float xBuildingTileMultibleThingy = Mathf.Round(buildingTileLocalPosition.x / multible) * multible;
+            float yBuildingTileMultibleThingy = Mathf.Round(buildingTileLocalPosition.y / multible) * multible;
+            float xTileBuildingBoxColliderSize = tileBuildingBoxCollider.size.x;
+            float yTileBuildingBoxColliderSize = tileBuildingBoxCollider.size.y;
+
+            if (xTileBuildingBoxColliderSize % 2 == 0 && yTileBuildingBoxColliderSize % 2 == 0) buildingTile.transform.localPosition = new Vector2(xBuildingTileMultibleThingy - .5f, yBuildingTileMultibleThingy - .5f);
+            else buildingTile.transform.localPosition = xTileBuildingBoxColliderSize % 2 == 0 ? new Vector2(xBuildingTileMultibleThingy - .5f, yBuildingTileMultibleThingy) : yTileBuildingBoxColliderSize % 2 == 0 ? new Vector2(xBuildingTileMultibleThingy, yBuildingTileMultibleThingy - .5f) : new Vector2(xBuildingTileMultibleThingy, yBuildingTileMultibleThingy);
+            if (xTileBuildingBoxColliderSize % 2 == 0 && yTileBuildingBoxColliderSize % 2 == 0) tilesNextToTileBuilding = FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize - .5f, yTileBuildingBoxColliderSize - .5f).ToArray();
+            else tilesNextToTileBuilding = xTileBuildingBoxColliderSize % 2 == 0 ? FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize - .5f, yTileBuildingBoxColliderSize).ToArray() : yTileBuildingBoxColliderSize % 2 == 0 ? FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize, yTileBuildingBoxColliderSize - .5f).ToArray() : FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize, yTileBuildingBoxColliderSize).ToArray();
 
             //Checks if there is a collider and if so then disable it 
             if (tileBuildingCollider) tileBuildingCollider.enabled = false;
@@ -232,7 +225,7 @@ public class PlayerController : MonoBehaviour
 
             GameObject closestTileObjectToCheck = FindClosestObjectThatContains(instDestroyGameObject, "_Tile");
 
-            if (Input.GetButtonDown("Fire1") && instDestroyGameObject.transform.localPosition == closestTileObjectToCheck.transform.localPosition)  //This got an error: NullReferenceException: Object reference not set to an instance of an object PlayerController.Destroying()(at Assets / Scripts / PlayerController.cs:235) PlayerController.Update()(at Assets / Scripts / PlayerController.cs:68)
+            if (Input.GetButtonDown("Fire1") && instDestroyGameObject && instDestroyGameObject.transform.localPosition == closestTileObjectToCheck.transform.localPosition)  //This got an error: NullReferenceException: Object reference not set to an instance of an object PlayerController.Destroying()(at Assets / Scripts / PlayerController.cs:235) PlayerController.Update()(at Assets / Scripts / PlayerController.cs:68)
             {
                 allObjects.Remove(closestTileObjectToCheck);
                 Destroy(closestTileObjectToCheck);
@@ -277,10 +270,7 @@ public class PlayerController : MonoBehaviour
             Ray mousePosition = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D hit2D = Physics2D.GetRayIntersection(mousePosition, Mathf.Infinity, 1 << 0);
 
-            if (hit2D)
-            {
-                print("Player Clicked " + hit2D.collider.name);
-            }
+            if (hit2D) print("Player Clicked " + hit2D.collider.name);
         }
 
         //Mouse movement
@@ -290,10 +280,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //Grid
-        if (Input.GetKeyDown(KeyCode.Home))
-        {
-            grid.displayGridGizmos = grid.displayGridGizmos ? false : true;
-        }
+        if (Input.GetKeyDown(KeyCode.Home)) grid.displayGridGizmos = grid.displayGridGizmos ? false : true;
     }
 
     //Below this is the secondary functions
