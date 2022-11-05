@@ -121,6 +121,7 @@ public class PlayerController : MonoBehaviour
             //This is how the tile system works for placeing the tiles in the correct positions
             buildingTile.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
+            //Local variables
             Vector3 buildingTileLocalPosition = buildingTile.transform.localPosition;
             float xBuildingTileMultibleThingy = Mathf.Round(buildingTileLocalPosition.x / multible) * multible;
             float yBuildingTileMultibleThingy = Mathf.Round(buildingTileLocalPosition.y / multible) * multible;
@@ -132,62 +133,36 @@ public class PlayerController : MonoBehaviour
             if (xTileBuildingBoxColliderSize % 2 == 0 && yTileBuildingBoxColliderSize % 2 == 0) tilesNextToTileBuilding = FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize - .5f, yTileBuildingBoxColliderSize - .5f).ToArray();
             else tilesNextToTileBuilding = xTileBuildingBoxColliderSize % 2 == 0 ? FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize - .5f, yTileBuildingBoxColliderSize).ToArray() : yTileBuildingBoxColliderSize % 2 == 0 ? FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize, yTileBuildingBoxColliderSize - .5f).ToArray() : FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize, yTileBuildingBoxColliderSize).ToArray();
 
-            //Checks if there is a collider and if so then disable it 
+            //Disables the tile being built box collider
             if (tileBuildingCollider) tileBuildingCollider.enabled = false;
 
-            //Checks if this object should be auto rotated to a tile before placeing 
+            //Auto rotation
             if (autoRotate)
             {
                 GameObject[] tilesNextToTileBuildingAutoRotate = FindObjectsNextToObject(buildingTile, "_Attach", 4);
 
-                if (Input.GetKeyDown(KeyCode.R) && tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex] && tilesNextToObjectBuildingIndex < 4)
-                {
-                    tilesNextToObjectBuildingIndex++;
-                }
-                if (tilesNextToObjectBuildingIndex >= 4)
-                {
-                    tilesNextToObjectBuildingIndex = 0;
-                }
-                if (!tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex])
-                {
-                    tilesNextToObjectBuildingIndex++;
-                }
-                if (tilesNextToObjectBuildingIndex >= 4)
-                {
-                    tilesNextToObjectBuildingIndex = 0;
-                }
+                if (Input.GetKeyDown(KeyCode.R) && tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex] && tilesNextToObjectBuildingIndex < 4) tilesNextToObjectBuildingIndex++;
+                if (tilesNextToObjectBuildingIndex >= 4) tilesNextToObjectBuildingIndex = 0;
+                if (!tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex]) tilesNextToObjectBuildingIndex++;
+                if (tilesNextToObjectBuildingIndex >= 4) tilesNextToObjectBuildingIndex = 0;
 
                 if (tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex] != null)
                 {
-                    if (tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex].transform.localPosition.x == buildingTile.transform.localPosition.x - 1)
-                    {
-                        buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 90);
-                    }
-                    else if (tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex].transform.localPosition.x == buildingTile.transform.localPosition.x + 1)
-                    {
-                        buildingTile.transform.localRotation = Quaternion.Euler(0, 0, -90);
-                    }
-                    else if (tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex].transform.localPosition.y == buildingTile.transform.localPosition.y - 1)
-                    {
-                        buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 180);
-                    }
-                    else if (tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex].transform.localPosition.y == buildingTile.transform.localPosition.y + 1)
-                    {
-                        buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 0);
-                    }
+                    if (tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex].transform.localPosition.x == buildingTile.transform.localPosition.x - 1) buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 90);
+                    else if (tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex].transform.localPosition.x == buildingTile.transform.localPosition.x + 1) buildingTile.transform.localRotation = Quaternion.Euler(0, 0, -90);
+                    else if (tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex].transform.localPosition.y == buildingTile.transform.localPosition.y - 1) buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 180);
+                    else if (tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex].transform.localPosition.y == buildingTile.transform.localPosition.y + 1) buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 0);
                 }
             }
 
-            //Checks if the object can be rotated by the player
+            //Player rotation
             if (rotate && Input.GetKeyDown(KeyCode.R)) buildingTile.transform.localRotation *= Quaternion.Euler(0, 0, 90);
 
             //This is checking if there is a tile next to the tile the player is trying to build
             for (int i = 0; i < tilesNextToTileBuilding.Length; i++) if (tilesNextToTileBuilding[i] && tilesNextToTileBuilding[i].name.Contains("_Attach")) canPlace = true;
 
-            GameObject closestTileObjectToInstBuildableObject = FindClosestObjectThatContains(buildingTile, "_Tile");   //This variable needs to be here
-
             //Places/Builds the tile
-            if (!destroy && Input.GetButton("Fire1") && canPlace && buildingTile.transform.localPosition != closestTileObjectToInstBuildableObject.transform.localPosition)
+            if (!destroy && Input.GetButton("Fire1") && canPlace && buildingTileLocalPosition != FindClosestObjectThatContains(buildingTile, "_Tile").transform.localPosition)
             {
                 tileBuildingCollider.enabled = true;
                 allObjects.Add(buildingTile);
@@ -225,7 +200,9 @@ public class PlayerController : MonoBehaviour
 
             GameObject closestTileObjectToCheck = FindClosestObjectThatContains(instDestroyGameObject, "_Tile");
 
-            if (Input.GetButtonDown("Fire1") && instDestroyGameObject && instDestroyGameObject.transform.localPosition == closestTileObjectToCheck.transform.localPosition)  //This got an error: NullReferenceException: Object reference not set to an instance of an object PlayerController.Destroying()(at Assets / Scripts / PlayerController.cs:235) PlayerController.Update()(at Assets / Scripts / PlayerController.cs:68)
+            //This got an error: NullReferenceException: Object reference not set to an instance of an object PlayerController.Destroying()(at Assets / Scripts / PlayerController.cs:235) PlayerController.Update()(at Assets / Scripts / PlayerController.cs:68)
+            //The error is caused by the rotation of the ship so for now it is restricted in the rigidbody of the ship
+            if (Input.GetButtonDown("Fire1") && instDestroyGameObject && instDestroyGameObject.transform.localPosition == closestTileObjectToCheck.transform.localPosition) 
             {
                 allObjects.Remove(closestTileObjectToCheck);
                 Destroy(closestTileObjectToCheck);

@@ -302,7 +302,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7014107714760331811, guid: 2406451166400ab4d940d26361daf75a, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 2406451166400ab4d940d26361daf75a, type: 3}
 --- !u!4 &139734294 stripped
 Transform:
@@ -912,7 +913,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7014107714760331811, guid: 2406451166400ab4d940d26361daf75a, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 2406451166400ab4d940d26361daf75a, type: 3}
 --- !u!4 &492226615 stripped
 Transform:
@@ -1391,7 +1393,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 256.81317, y: 285.5865}
+  m_AnchoredPosition: {x: 256.81317, y: 185.18}
   m_SizeDelta: {x: 286.3737, y: 79.6468}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &728547711
@@ -3159,7 +3161,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!114 &2121877357
 MonoBehaviour:
   m_ObjectHideFlags: 0
