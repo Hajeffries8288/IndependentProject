@@ -28,6 +28,8 @@ public class PlayerController : MonoBehaviour
 
     //Destroying
     bool destroy;
+    GameObject shipCore;
+    GameObject unattachedObjectsParent;
 
     //DestroyPlacedTiles
     [Header("DestroyPlacedTiles")]
@@ -55,6 +57,10 @@ public class PlayerController : MonoBehaviour
 
         //Grid
         grid = GameObject.Find("GridGen").GetComponent<_Grid>();
+
+        //Destroying
+        shipCore = GameObject.Find("ShipCore_Attach");
+        unattachedObjectsParent = GameObject.Find("UnattachedObjects");
     }
 
     private void Update()       // Update is called once per frame
@@ -95,6 +101,8 @@ public class PlayerController : MonoBehaviour
             Collider2D hit2D = raycast2D.collider;
         }
     }
+
+    //Set a box collider the size of the grid and then check weather or not the player is building inside the collider if they are then yay but if not then make the grid size increase along with the box collider 
 
     private void Building()
     {
@@ -162,13 +170,13 @@ public class PlayerController : MonoBehaviour
             for (int i = 0; i < tilesNextToTileBuilding.Length; i++) if (tilesNextToTileBuilding[i] && tilesNextToTileBuilding[i].name.Contains("_Attach")) canPlace = true;
 
             //Places/Builds the tile
-            if (!destroy && Input.GetButton("Fire1") && canPlace && buildingTileLocalPosition != FindClosestObjectThatContains(buildingTile, "_Tile").transform.localPosition)
+            if (!destroy && Input.GetButton("Fire1") && canPlace && buildingTile.transform.localPosition != FindClosestObjectThatContains(buildingTile, "_Tile").transform.localPosition)   //NOTE: buildingTile.transform.localPosition has to be there and connot be replaced into a local variable
             {
                 tileBuildingCollider.enabled = true;
                 allObjects.Add(buildingTile);
                 buildingTile = null;
 
-                grid.CreateGrid();
+                grid.UpdateGrid();
             }
 
             //Stops building script
@@ -206,20 +214,20 @@ public class PlayerController : MonoBehaviour
             {
                 allObjects.Remove(closestTileObjectToCheck);
                 Destroy(closestTileObjectToCheck);
-                grid.CreateGrid();
+                grid.UpdateGrid();
 
                 GameObject disconnectedObjectParent = new GameObject("UnattachedObjectParent");
                 Rigidbody2D disconnectedObjectParentRB = disconnectedObjectParent.AddComponent<Rigidbody2D>();
                 disconnectedObjectParentRB.gravityScale = 0;
                 disconnectedObjectParentRB.useAutoMass = true;
                 disconnectedObjectParentRB.velocity = ship.GetComponent<Rigidbody2D>().velocity;
-                disconnectedObjectParent.transform.parent = GameObject.Find("UnattachedObjects").transform;
+                disconnectedObjectParent.transform.parent = unattachedObjectsParent.transform;
 
                 for (int i = 0; i < allObjects.Count; i++)
                 {
                     if (allObjects[i] && allObjects[i].name.Contains("_Tile"))
                     {
-                        if (!IsAttached(allObjects[i].transform.localPosition, GameObject.Find("ShipCore_Attach").transform.localPosition))
+                        if (!IsAttached(allObjects[i].transform.localPosition, shipCore.transform.localPosition))
                         {
                             allObjects[i].transform.parent = disconnectedObjectParent.transform;
                             allObjects[i].layer = 0;
@@ -228,7 +236,7 @@ public class PlayerController : MonoBehaviour
                     }
                 }
 
-                grid.CreateGrid();
+                grid.UpdateGrid();
             }
 
             if (Input.GetButtonDown("Fire2"))

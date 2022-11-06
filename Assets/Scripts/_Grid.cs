@@ -50,6 +50,22 @@ public class _Grid : MonoBehaviour
 		}
 	}
 
+	public void UpdateGrid()
+    {
+		Vector2 worldBottomLeft = (Vector2)transform.position - Vector2.right * gridWorldSize.x / 2 - Vector2.up * gridWorldSize.y / 2;
+
+		for (int x = 0; x < gridSizeX; x++)
+		{
+			for (int y = 0; y < gridSizeY; y++)
+			{
+				Vector2 worldPoint = worldBottomLeft + Vector2.right * (x * nodeDiameter + nodeRadius) + Vector2.up * (y * nodeDiameter + nodeRadius);
+				bool walkable = Physics2D.OverlapCircle(worldPoint, nodeRadius, walkableMask) != null; // if no collider2D is returned by overlap circle, then this node is not walkable
+
+				grid[x, y].walkable = walkable;
+			}
+		}
+	}
+
 
 	public List<Node> GetNeighbours(Node node, int depth = 1)
 	{
@@ -102,10 +118,6 @@ public class _Grid : MonoBehaviour
                 {
 					Gizmos.color = Color.white;
 				}
-				else if (n.isCoreNode)
-                {
-					Gizmos.color = Color.blue;
-                }
 
 				Gizmos.DrawCube(n.worldPosition, Vector3.one * (nodeDiameter - .1f));
 			}
