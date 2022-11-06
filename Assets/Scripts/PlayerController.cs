@@ -47,7 +47,7 @@ public class PlayerController : MonoBehaviour
     //Grid
     _Grid grid;
 
-    private void Start()        // Start is called before the first frame update            //NOTE: Maybe change this to Awake()        Figure out if GameObject.Find("TestoWesto") is good in Start()
+    private void Start()        // Start is called before the first frame update            //NOTE: Maybe change this to Awake()
     {
         //Movement
         mouseScroll = 5;
@@ -98,7 +98,7 @@ public class PlayerController : MonoBehaviour
         mainCamera.orthographicSize = mouseScroll;
 
         //Screen Grab
-        if (Input.GetButton("Fire3")) transform.position = new Vector3(transform.position.x - Input.GetAxis("Mouse X") * screenDragSpeed * gui.transform.lossyScale.x * Time.deltaTime, transform.position.y - Input.GetAxis("Mouse Y") * screenDragSpeed * gui.transform.lossyScale.y * Time.deltaTime, transform.position.z);
+        if (Input.GetButton("Fire3")) transform.localPosition = new Vector3(transform.localPosition.x - Input.GetAxis("Mouse X") * screenDragSpeed * gui.transform.lossyScale.x * Time.deltaTime, transform.localPosition.y - Input.GetAxis("Mouse Y") * screenDragSpeed * gui.transform.lossyScale.y * Time.deltaTime, transform.localPosition.z);
     }
 
     private void Clicking()
@@ -127,7 +127,6 @@ public class PlayerController : MonoBehaviour
             Collider2D tileBuildingCollider = buildingTile.GetComponent<Collider2D>();
             BoxCollider2D tileBuildingBoxCollider = buildingTile.GetComponent<BoxCollider2D>();
             GameObject[] tilesNextToTileBuilding;
-            bool nextToTile = false;
 
             //Checks if there is a collider and if so then disable it 
             if (tileBuildingCollider) tileBuildingCollider.enabled = false;
@@ -174,14 +173,16 @@ public class PlayerController : MonoBehaviour
             //Player rotation
             if (rotate && Input.GetKeyDown(KeyCode.R)) buildingTile.transform.localRotation *= Quaternion.Euler(0, 0, 90);
 
-            //This is checking if there is a tile next to the tile the player is trying to build
-            for (int i = 0; i < tilesNextToTileBuilding.Length; i++) if (tilesNextToTileBuilding[i] && tilesNextToTileBuilding[i].name.Contains("_Attach")) nextToTile = true;
-
+            //Local variables
+            bool nextToTile = false;
+            for (int i = 0; i < tilesNextToTileBuilding.Length; i++) nextToTile = tilesNextToTileBuilding[i] && tilesNextToTileBuilding[i].name.Contains("_Attach");
             bool inGrid = buildingTileLocalPosition.x <= Mathf.RoundToInt(grid.gridWorldSize.x / 2) && buildingTileLocalPosition.x >= Mathf.RoundToInt(-grid.gridWorldSize.x/2) && buildingTileLocalPosition.y <= Mathf.RoundToInt(grid.gridWorldSize.y/2) && buildingTileLocalPosition.y >= Mathf.RoundToInt(-grid.gridWorldSize.y/2);
 
             //Places/Builds the tile
             if (!destroy && Input.GetButton("Fire1") && nextToTile && buildingTileLocalPosition != FindClosestObjectThatContains(buildingTile, "_Tile").transform.localPosition && inGrid)
             {
+                if (buildingTileLocalPosition.x == Mathf.RoundToInt(grid.gridWorldSize.x / 2) || buildingTileLocalPosition.x == Mathf.RoundToInt(-grid.gridWorldSize.x / 2) || buildingTileLocalPosition.y == Mathf.RoundToInt(grid.gridWorldSize.y / 2) || buildingTileLocalPosition.y == (-grid.gridWorldSize.y / 2)) print("Make the grid grow by 1!!!");
+
                 tileBuildingCollider.enabled = true;
                 allObjects.Add(buildingTile);
                 buildingTile = null;

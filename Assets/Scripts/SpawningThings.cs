@@ -19,6 +19,7 @@ public class SpawningThings : MonoBehaviour
     public int chanceForAstroyids_Int;
     public GameObject astroid;
     public Sprite[] astroidSprites;
+
     float timeInbetweenCheckingAstroyid;
     GameObject astroidParent;
     bool createAstroyid;
