@@ -9,9 +9,13 @@ public class PlayerController : MonoBehaviour
     public float speed;
     public float shiftSpeed;
     public float maxZoomOut;
+    public float screenDragSpeed;
 
     float mouseScroll;
+    Vector3 lastPosition;
+    Vector3 delta;
     GameObject ship;
+    Canvas gui;
     Camera mainCamera;
 
     //Building
@@ -61,6 +65,7 @@ public class PlayerController : MonoBehaviour
         //Destroying
         shipCore = GameObject.Find("ShipCore_Attach");
         unattachedObjectsParent = GameObject.Find("UnattachedObjects");
+        gui = GameObject.Find("GUI").GetComponent<Canvas>();
     }
 
     private void Update()       // Update is called once per frame
@@ -91,6 +96,9 @@ public class PlayerController : MonoBehaviour
         //Scroll
         transform.Translate(velocity * Time.deltaTime);
         mainCamera.orthographicSize = mouseScroll;
+
+        //Screen Grab
+        if (Input.GetButton("Fire3")) transform.position = new Vector3(transform.position.x - Input.GetAxis("Mouse X") * screenDragSpeed * gui.transform.lossyScale.x * Time.deltaTime, transform.position.y - Input.GetAxis("Mouse Y") * screenDragSpeed * gui.transform.lossyScale.y * Time.deltaTime, transform.position.z);
     }
 
     private void Clicking()
@@ -101,8 +109,6 @@ public class PlayerController : MonoBehaviour
             Collider2D hit2D = raycast2D.collider;
         }
     }
-
-    //Set a box collider the size of the grid and then check weather or not the player is building inside the collider if they are then yay but if not then make the grid size increase along with the box collider 
 
     private void Building()
     {
@@ -121,7 +127,7 @@ public class PlayerController : MonoBehaviour
             Collider2D tileBuildingCollider = buildingTile.GetComponent<Collider2D>();
             BoxCollider2D tileBuildingBoxCollider = buildingTile.GetComponent<BoxCollider2D>();
             GameObject[] tilesNextToTileBuilding;
-            bool canPlace = false;
+            bool nextToTile = false;
 
             //Checks if there is a collider and if so then disable it 
             if (tileBuildingCollider) tileBuildingCollider.enabled = false;
@@ -140,6 +146,8 @@ public class PlayerController : MonoBehaviour
             else buildingTile.transform.localPosition = xTileBuildingBoxColliderSize % 2 == 0 ? new Vector2(xBuildingTileMultibleThingy - .5f, yBuildingTileMultibleThingy) : yTileBuildingBoxColliderSize % 2 == 0 ? new Vector2(xBuildingTileMultibleThingy, yBuildingTileMultibleThingy - .5f) : new Vector2(xBuildingTileMultibleThingy, yBuildingTileMultibleThingy);
             if (xTileBuildingBoxColliderSize % 2 == 0 && yTileBuildingBoxColliderSize % 2 == 0) tilesNextToTileBuilding = FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize - .5f, yTileBuildingBoxColliderSize - .5f).ToArray();
             else tilesNextToTileBuilding = xTileBuildingBoxColliderSize % 2 == 0 ? FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize - .5f, yTileBuildingBoxColliderSize).ToArray() : yTileBuildingBoxColliderSize % 2 == 0 ? FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize, yTileBuildingBoxColliderSize - .5f).ToArray() : FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize, yTileBuildingBoxColliderSize).ToArray();
+
+            buildingTileLocalPosition = buildingTile.transform.localPosition;
 
             //Disables the tile being built box collider
             if (tileBuildingCollider) tileBuildingCollider.enabled = false;
@@ -167,10 +175,12 @@ public class PlayerController : MonoBehaviour
             if (rotate && Input.GetKeyDown(KeyCode.R)) buildingTile.transform.localRotation *= Quaternion.Euler(0, 0, 90);
 
             //This is checking if there is a tile next to the tile the player is trying to build
-            for (int i = 0; i < tilesNextToTileBuilding.Length; i++) if (tilesNextToTileBuilding[i] && tilesNextToTileBuilding[i].name.Contains("_Attach")) canPlace = true;
+            for (int i = 0; i < tilesNextToTileBuilding.Length; i++) if (tilesNextToTileBuilding[i] && tilesNextToTileBuilding[i].name.Contains("_Attach")) nextToTile = true;
+
+            bool inGrid = buildingTileLocalPosition.x <= Mathf.RoundToInt(grid.gridWorldSize.x / 2) && buildingTileLocalPosition.x >= Mathf.RoundToInt(-grid.gridWorldSize.x/2) && buildingTileLocalPosition.y <= Mathf.RoundToInt(grid.gridWorldSize.y/2) && buildingTileLocalPosition.y >= Mathf.RoundToInt(-grid.gridWorldSize.y/2);
 
             //Places/Builds the tile
-            if (!destroy && Input.GetButton("Fire1") && canPlace && buildingTile.transform.localPosition != FindClosestObjectThatContains(buildingTile, "_Tile").transform.localPosition)   //NOTE: buildingTile.transform.localPosition has to be there and connot be replaced into a local variable
+            if (!destroy && Input.GetButton("Fire1") && nextToTile && buildingTileLocalPosition != FindClosestObjectThatContains(buildingTile, "_Tile").transform.localPosition && inGrid)
             {
                 tileBuildingCollider.enabled = true;
                 allObjects.Add(buildingTile);
@@ -256,12 +266,6 @@ public class PlayerController : MonoBehaviour
             RaycastHit2D hit2D = Physics2D.GetRayIntersection(mousePosition, Mathf.Infinity, 1 << 0);
 
             if (hit2D) print("Player Clicked " + hit2D.collider.name);
-        }
-
-        //Mouse movement
-        if (Input.GetButton("Fire3"))
-        {
-            //Make mouse code after disnyland or make the way it would work aka come up with ideas for how it will work at disnyland.
         }
 
         //Grid

@@ -1175,6 +1175,7 @@ MonoBehaviour:
   speed: 20
   shiftSpeed: 40
   maxZoomOut: 50
+  screenDragSpeed: 2000
   multible: 1
   buildableObjects:
   - {fileID: 4077217966821539177, guid: 7422af2af92777041836e5b230a6e4d5, type: 3}
@@ -1850,7 +1851,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 912923372}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.32931194, y: 22.212477, z: -72.12837}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -2305,7 +2306,7 @@ MonoBehaviour:
   walkableMask:
     serializedVersion: 2
     m_Bits: 128
-  gridWorldSize: {x: 20, y: 20}
+  gridWorldSize: {x: 100, y: 100}
   nodeRadius: 0.24
 --- !u!1001 &1474571254
 PrefabInstance:
