@@ -18,10 +18,6 @@ public class _Grid : MonoBehaviour
 
 	private void Awake()
 	{
-		nodeDiameter = nodeRadius * 2;
-		gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiameter);
-		gridSizeY = Mathf.RoundToInt(gridWorldSize.y / nodeDiameter);
-
 		CreateGrid();
 	}
 
@@ -35,6 +31,10 @@ public class _Grid : MonoBehaviour
 
 	public void CreateGrid()
 	{
+		nodeDiameter = nodeRadius * 2;
+		gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiameter);
+		gridSizeY = Mathf.RoundToInt(gridWorldSize.y / nodeDiameter);
+
 		grid = new Node[gridSizeX, gridSizeY];
 		Vector2 worldBottomLeft = (Vector2)transform.position - Vector2.right * gridWorldSize.x / 2 - Vector2.up * gridWorldSize.y / 2;
 

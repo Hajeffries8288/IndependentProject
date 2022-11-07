@@ -2987,7 +2987,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2121877353}
-  - component: {fileID: 2121877357}
+  - component: {fileID: 2121877356}
   - component: {fileID: 2121877354}
   - component: {fileID: 2121877355}
   m_Layer: 0
@@ -3082,7 +3082,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &2121877357
+--- !u!114 &2121877356
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3094,12 +3094,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0dfda876c0252543b2812f275753f1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distanceToSpawnAstroyids: 80
-  distanceFromShipForDespawn: 200
-  astroyidMaximumSize: 3
+  chanceForAstroyidSpawn: 2
+  distanceToSpawnAstroyids: 100
+  distanceFromShipForDespawn: 150
+  astroyidMaximumSize: 5
   astroyidMaximumVelocity: 10
-  maximumTimeTellNextCheckForAstroyid: 1
-  chanceForAstroyids_Int: 0
   astroid: {fileID: 5804102555780953137, guid: 995a5ca012a30b44192812015fa06379, type: 3}
   astroidSprites:
   - {fileID: 21300000, guid: 6c19826e533ebb545b996e0641211a48, type: 3}

@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class TractorBeemScript : MonoBehaviour
 {
@@ -9,15 +8,13 @@ public class TractorBeemScript : MonoBehaviour
     public float velocityOfPickingUpAstroyid;
     public static int astroyidsCollected; // This is temperary a better and more in depth resorce stuff will be made later
 
-    Text resorcesText;
-
     //Raycast
     public float distanceToPickUpAstroyid;
     RaycastHit2D hit;
 
     private void Start()
     {
-        resorcesText = GameObject.Find("Resorces").GetComponent<Text>();
+        
     }
 
     private void FixedUpdate()
@@ -56,11 +53,11 @@ public class TractorBeemScript : MonoBehaviour
                 animator.SetBool("Off/On", true);
                 particleSystem.Play();
 
-                if ((transform.position - hit.transform.position).magnitude <= 1)
+                if ((transform.position - hit.transform.position).magnitude <= 2)   //This is for testing 
                 {
                     Destroy(hit.transform.gameObject);
                     astroyidsCollected++;
-                    resorcesText.text = "Resorces: " + astroyidsCollected.ToString();
+                    print("Resorces: " + astroyidsCollected.ToString() + " NOTE: Make script for GUI");
                     PlayerController.allObjects.Remove(hit.transform.gameObject);
                 }
             }

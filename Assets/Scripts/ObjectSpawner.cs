@@ -2,21 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//NOTE: Maybe try to make a better name for this script but for now this should work
 //NOTE: Fix the astroyids colliders to be the correct size
-//NOTE: Find a way that takes way less variables 
 
-public class SpawningThings : MonoBehaviour
+public class ObjectSpawner : MonoBehaviour
 {
-    //Astroyids                 NOTE: Make this with way less variables you dont need all of these also orginize them
+    //Astroyids
     [Header("Astroyids")]
     [HideInInspector] public static List<GameObject> astroyidsCreated;
+    public float chanceForAstroyidSpawn;
     public float distanceToSpawnAstroyids;
     public float distanceFromShipForDespawn;
     public float astroyidMaximumSize;
     public float astroyidMaximumVelocity;
-    public float maximumTimeTellNextCheckForAstroyid;
-    public int chanceForAstroyids_Int;
     public GameObject astroid;
     public Sprite[] astroidSprites;
 
@@ -24,7 +21,7 @@ public class SpawningThings : MonoBehaviour
     GameObject astroidParent;
     bool createAstroyid;
 
-    //Misc              NOTE: Name this something better then Misc
+    //Courutine array for all spawning objects
     bool[] coroutineStart;
 
     // Start is called before the first frame update
@@ -32,18 +29,18 @@ public class SpawningThings : MonoBehaviour
     {
         //Astroyids
         astroidParent = GameObject.Find("AstroyidParent");
-        timeInbetweenCheckingAstroyid = Random.Range(0, maximumTimeTellNextCheckForAstroyid);
+        timeInbetweenCheckingAstroyid = Random.Range(0, chanceForAstroyidSpawn);
 
-        //Misc          NOTE: Name this something better then Misc
+        //Courutine array for all spawning objects
         astroyidsCreated = new List<GameObject>{};
-        coroutineStart = new bool[10];          //NOTE: This number will cange to the ammount of coroutineStart variables that are needed
+        coroutineStart = new bool[10]; //Number of diffrent objects being spawned
         for (int i = 0; i < coroutineStart.Length; i++) coroutineStart[i] = true;
     }
 
     // Update is called once per frame
     void Update()
     {
-        Spawning();
+        Astroyids();
 
         Debugging();
     }
@@ -53,14 +50,15 @@ public class SpawningThings : MonoBehaviour
         
     }
 
-    private void Spawning()
+    //Astroyids
+    private void Astroyids()            //NOTE: Try to get the script to not call GetComponent during runtime
     {
-        //Astroyids
         if (coroutineStart[0]) StartCoroutine(CheckAstroyids());
 
         if (createAstroyid)
         {
             float scale = Random.Range(0.1f, astroyidMaximumSize);
+
             scale = Mathf.Clamp(scale, 0.1f, astroyidMaximumSize);
             GameObject instAstroyid = Instantiate(astroid, transform);
             PlayerController.allObjects.Add(instAstroyid);
@@ -101,8 +99,10 @@ public class SpawningThings : MonoBehaviour
         coroutineStart[0] = false;
         yield return new WaitForSeconds(timeInbetweenCheckingAstroyid);
         coroutineStart[0] = true;
-        timeInbetweenCheckingAstroyid = Random.Range(0, maximumTimeTellNextCheckForAstroyid);
-        createAstroyid = ((int)Random.Range(0, chanceForAstroyids_Int)) == 0;
+        timeInbetweenCheckingAstroyid = Random.Range(0, chanceForAstroyidSpawn);
+        createAstroyid = true;
         StopCoroutine(CheckAstroyids());
     }
+
+    //Other stuff
 }

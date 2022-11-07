@@ -179,10 +179,16 @@ public class PlayerController : MonoBehaviour
             bool inGrid = buildingTileLocalPosition.x <= Mathf.RoundToInt(grid.gridWorldSize.x / 2) && buildingTileLocalPosition.x >= Mathf.RoundToInt(-grid.gridWorldSize.x/2) && buildingTileLocalPosition.y <= Mathf.RoundToInt(grid.gridWorldSize.y/2) && buildingTileLocalPosition.y >= Mathf.RoundToInt(-grid.gridWorldSize.y/2);
 
             //Places/Builds the tile
-            if (!destroy && Input.GetButton("Fire1") && nextToTile && buildingTileLocalPosition != FindClosestObjectThatContains(buildingTile, "_Tile").transform.localPosition && inGrid)
+            if (!destroy && Input.GetButton("Fire1") && nextToTile && buildingTileLocalPosition != FindClosestObjectThatContains(buildingTile, "_Tile").transform.localPosition && inGrid && TractorBeemScript.astroyidsCollected > 0)
             {
-                if (buildingTileLocalPosition.x == Mathf.RoundToInt(grid.gridWorldSize.x / 2) || buildingTileLocalPosition.x == Mathf.RoundToInt(-grid.gridWorldSize.x / 2) || buildingTileLocalPosition.y == Mathf.RoundToInt(grid.gridWorldSize.y / 2) || buildingTileLocalPosition.y == (-grid.gridWorldSize.y / 2)) print("Make the grid grow by 1!!!");
+                if (buildingTileLocalPosition.x == Mathf.RoundToInt(grid.gridWorldSize.x / 2) || buildingTileLocalPosition.x == Mathf.RoundToInt(-grid.gridWorldSize.x / 2) || buildingTileLocalPosition.y == Mathf.RoundToInt(grid.gridWorldSize.y / 2) || buildingTileLocalPosition.y == (-grid.gridWorldSize.y / 2))
+                {
+                    grid.gridWorldSize = new Vector2(grid.gridWorldSize.x + 2, grid.gridWorldSize.y + 2);
+                    grid.CreateGrid();
+                }
 
+                TractorBeemScript.astroyidsCollected--;
+                print("Recorces: " + TractorBeemScript.astroyidsCollected.ToString() + " NOTE: Make script for GUI");
                 tileBuildingCollider.enabled = true;
                 allObjects.Add(buildingTile);
                 buildingTile = null;
@@ -221,10 +227,13 @@ public class PlayerController : MonoBehaviour
 
             //This got an error: NullReferenceException: Object reference not set to an instance of an object PlayerController.Destroying()(at Assets / Scripts / PlayerController.cs:235) PlayerController.Update()(at Assets / Scripts / PlayerController.cs:68)
             //The error is caused by the rotation of the ship so for now it is restricted in the rigidbody of the ship
-            if (Input.GetButtonDown("Fire1") && instDestroyGameObject && instDestroyGameObject.transform.localPosition == closestTileObjectToCheck.transform.localPosition) 
+            if (Input.GetButtonDown("Fire1") && instDestroyGameObject && instDestroyGameObject.transform.localPosition == closestTileObjectToCheck.transform.localPosition)
             {
                 allObjects.Remove(closestTileObjectToCheck);
                 Destroy(closestTileObjectToCheck);
+                TractorBeemScript.astroyidsCollected++;
+                print("Resorces: " + TractorBeemScript.astroyidsCollected + " NOTE: Make script for GUI");
+
                 grid.UpdateGrid();
 
                 GameObject disconnectedObjectParent = new GameObject("UnattachedObjectParent");
