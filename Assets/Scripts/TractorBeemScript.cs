@@ -57,7 +57,7 @@ public class TractorBeemScript : MonoBehaviour
                 {
                     Destroy(hit.transform.gameObject);
                     astroyidsCollected++;
-                    print("Resorces: " + astroyidsCollected.ToString() + " NOTE: Make script for GUI");
+                    GUIScript.UpdateResorces();
                     PlayerController.allObjects.Remove(hit.transform.gameObject);
                 }
             }

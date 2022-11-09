@@ -188,7 +188,7 @@ public class PlayerController : MonoBehaviour
                 }
 
                 TractorBeemScript.astroyidsCollected--;
-                print("Recorces: " + TractorBeemScript.astroyidsCollected.ToString() + " NOTE: Make script for GUI");
+                GUIScript.UpdateResorces();
                 tileBuildingCollider.enabled = true;
                 allObjects.Add(buildingTile);
                 buildingTile = null;
@@ -227,12 +227,16 @@ public class PlayerController : MonoBehaviour
 
             //This got an error: NullReferenceException: Object reference not set to an instance of an object PlayerController.Destroying()(at Assets / Scripts / PlayerController.cs:235) PlayerController.Update()(at Assets / Scripts / PlayerController.cs:68)
             //The error is caused by the rotation of the ship so for now it is restricted in the rigidbody of the ship
-            if (Input.GetButtonDown("Fire1") && instDestroyGameObject && instDestroyGameObject.transform.localPosition == closestTileObjectToCheck.transform.localPosition)
+
+            //Make smaller !!!
+            bool overDestroyableTile = instDestroyGameObject.transform.localPosition == closestTileObjectToCheck.transform.localPosition || instDestroyGameObject.transform.localPosition.x - .5f == closestTileObjectToCheck.transform.localPosition.x || instDestroyGameObject.transform.localPosition.x + .5f == closestTileObjectToCheck.transform.localPosition.x || instDestroyGameObject.transform.localPosition.y - .5f == closestTileObjectToCheck.transform.localPosition.y || instDestroyGameObject.transform.localPosition.y + .5f == closestTileObjectToCheck.transform.localPosition.y;
+
+            if (Input.GetButtonDown("Fire1") && instDestroyGameObject && overDestroyableTile)
             {
                 allObjects.Remove(closestTileObjectToCheck);
                 Destroy(closestTileObjectToCheck);
                 TractorBeemScript.astroyidsCollected++;
-                print("Resorces: " + TractorBeemScript.astroyidsCollected + " NOTE: Make script for GUI");
+                GUIScript.UpdateResorces();
 
                 grid.UpdateGrid();
 
@@ -284,7 +288,7 @@ public class PlayerController : MonoBehaviour
 
     //Below this is the secondary functions
 
-    public void SelectedObjectFromGUI(int objectSelectedIndex)
+    public void SelectedObjectFromGUI(int objectSelectedIndex)      //NOTE: Put this in GUIScript
     {
         if (buildingTile) Destroy(buildingTile);
         buildingIndex = objectSelectedIndex;
@@ -296,7 +300,7 @@ public class PlayerController : MonoBehaviour
         building = true;
     }
 
-    public void DestroySelected()
+    public void DestroySelected()      //NOTE: Put this in GUIScript
     {
         destroy = true;
     }       //Goes with the SelectedObjectFromGUI method
