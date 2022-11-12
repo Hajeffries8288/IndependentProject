@@ -32,10 +32,6 @@ public class TractorBeemScript : MonoBehaviour
 
     private void TractorBeem()
     {
-        //You have to have this variable because I guess its a bich
-        var particleSystemMain = GetComponent<ParticleSystem>().main;
-        particleSystemMain.startRotationZ = transform.localRotation.z * Mathf.Deg2Rad; //This isnt the correct rotation figgure this out NOTE: This is for the rotation of the particles so its not the most importent thing
-
         GameObject closestAstroyid = FindClosestObjectThatContains(gameObject, "Astroyids");
         Animator animator = GetComponent<Animator>();
         ParticleSystem particleSystem = GetComponent<ParticleSystem>();
