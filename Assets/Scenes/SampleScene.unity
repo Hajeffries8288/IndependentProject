@@ -2768,7 +2768,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!224 &1661766252
 RectTransform:
@@ -2813,7 +2813,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   developmentBuild: {fileID: 484487228}
-  versionNumber: 1.15.31
+  versionNumber: 1.15.32
   buildNumber: 2
 --- !u!1001 &1719325933
 PrefabInstance:

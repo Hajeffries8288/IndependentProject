@@ -161,12 +161,56 @@ public class PlayerController : MonoBehaviour
                 if (!tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex]) tilesNextToObjectBuildingIndex++;
                 if (tilesNextToObjectBuildingIndex >= 4) tilesNextToObjectBuildingIndex = 0;
 
-                if (tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex] != null)
+                GameObject tileNextToTileBuildingFromIndex = tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex];
+
+                if (tileNextToTileBuildingFromIndex != null)
                 {
-                    if (tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex].transform.localPosition.x == buildingTile.transform.localPosition.x - 1) buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 90);
-                    else if (tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex].transform.localPosition.x == buildingTile.transform.localPosition.x + 1) buildingTile.transform.localRotation = Quaternion.Euler(0, 0, -90);
-                    else if (tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex].transform.localPosition.y == buildingTile.transform.localPosition.y - 1) buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 180);
-                    else if (tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex].transform.localPosition.y == buildingTile.transform.localPosition.y + 1) buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 0);
+                    Vector3 tileNextToTileBuildingFromIndexPosition = tilesNextToTileBuildingAutoRotate[tilesNextToObjectBuildingIndex].transform.localPosition;
+
+                    if (tileNextToTileBuildingFromIndexPosition.x == buildingTileLocalPosition.x - 1)
+                    {
+                        buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 90);
+
+                        ParticleSystem buildingTileParticleSystem = buildingTile.GetComponent<ParticleSystem>();
+                        if (buildingTileParticleSystem)
+                        {
+                            var buildingTileParticleSystemMain = buildingTileParticleSystem.main;
+                            buildingTileParticleSystemMain.startRotation = 90 * Mathf.Deg2Rad;
+                        }
+                    }
+                    else if (tileNextToTileBuildingFromIndexPosition.x == buildingTileLocalPosition.x + 1)
+                    {
+                        buildingTile.transform.localRotation = Quaternion.Euler(0, 0, -90);
+
+                        ParticleSystem buildingTileParticleSystem = buildingTile.GetComponent<ParticleSystem>();
+                        if (buildingTileParticleSystem)
+                        {
+                            var buildingTileParticleSystemMain = buildingTileParticleSystem.main;
+                            buildingTileParticleSystemMain.startRotation = -90 * Mathf.Deg2Rad;
+                        }
+                    }
+                    else if (tileNextToTileBuildingFromIndexPosition.y == buildingTileLocalPosition.y - 1)
+                    {
+                        buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 180);
+
+                        ParticleSystem buildingTileParticleSystem = buildingTile.GetComponent<ParticleSystem>();
+                        if (buildingTileParticleSystem)
+                        {
+                            var buildingTileParticleSystemMain = buildingTileParticleSystem.main;
+                            buildingTileParticleSystemMain.startRotation = 180 * Mathf.Deg2Rad;
+                        }
+                    }
+                    else if (tileNextToTileBuildingFromIndexPosition.y == buildingTileLocalPosition.y + 1)
+                    {
+                        buildingTile.transform.localRotation = Quaternion.Euler(0, 0, 0);
+
+                        ParticleSystem buildingTileParticleSystem = buildingTile.GetComponent<ParticleSystem>();
+                        if (buildingTileParticleSystem)
+                        {
+                            var buildingTileParticleSystemMain = buildingTileParticleSystem.main;
+                            buildingTileParticleSystemMain.startRotation = 0 * Mathf.Deg2Rad;
+                        }
+                    }
                 }
             }
 
@@ -284,6 +328,13 @@ public class PlayerController : MonoBehaviour
 
         //Grid
         if (Input.GetKeyDown(KeyCode.Home)) grid.displayGridGizmos = grid.displayGridGizmos ? false : true;
+
+        //Resorces
+        if (Input.GetKeyDown(KeyCode.PageUp))
+        {
+            TractorBeemScript.astroyidsCollected++;
+            GUIScript.UpdateResorces();
+        }
     }
 
     //Below this is the secondary functions
