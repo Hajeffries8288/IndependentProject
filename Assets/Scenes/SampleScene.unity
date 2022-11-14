@@ -947,7 +947,7 @@ GameObject:
   m_Component:
   - component: {fileID: 484487229}
   m_Layer: 0
-  m_Name: DevelopmentBuild
+  m_Name: DebugInfo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2812,9 +2812,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e45037f20f152f54e9db69e89c598f65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  developmentBuild: {fileID: 484487228}
-  versionNumber: 1.15.32
+  debugInfo: {fileID: 484487228}
+  versionNumber: 1.15.34
   buildNumber: 2
+  showDebugInfo: 0
 --- !u!1001 &1719325933
 PrefabInstance:
   m_ObjectHideFlags: 0

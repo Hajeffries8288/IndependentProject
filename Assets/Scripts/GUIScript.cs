@@ -9,13 +9,15 @@ public class GUIScript : MonoBehaviour
     [Header("Resorces")]
     public static Text resorcesText;
 
-    //DevelopmentBuild
-    public GameObject developmentBuild;
+    //DebugInfo
+    public GameObject debugInfo;
     public string versionNumber;
     public int buildNumber;
 
     public static Text version;
     public static Text build;
+
+    public bool showDebugInfo;
 
     void Start() //Start is called before the first frame update
     {
@@ -23,10 +25,10 @@ public class GUIScript : MonoBehaviour
         resorcesText = GameObject.Find("Resorces").GetComponent<Text>();
         resorcesText.text = "Resorces: " + TractorBeemScript.astroyidsCollected;
 
-        //DevelopmentBuild
+        //DebugInfo
         if (Debug.isDebugBuild)
         {
-            developmentBuild.SetActive(true);
+            debugInfo.SetActive(true);
 
             version = GameObject.Find("Version").GetComponent<Text>();
             version.text = "Version: " + versionNumber;
@@ -43,5 +45,11 @@ public class GUIScript : MonoBehaviour
     public static void UpdateResorces()
     {
         resorcesText.text = "Resorces: " + TractorBeemScript.astroyidsCollected;
+    }
+
+    public void DebugInfo()
+    {
+        showDebugInfo = showDebugInfo ? false : true;
+        debugInfo.SetActive(showDebugInfo);
     }
 }

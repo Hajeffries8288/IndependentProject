@@ -211,7 +211,7 @@ public class PlayerController : MonoBehaviour
                             buildingTileParticleSystemMain.startRotation = 0 * Mathf.Deg2Rad;
                         }
                     }
-                }
+                }       //!!!!!!
             }
 
             //Player rotation
@@ -330,11 +330,14 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Home)) grid.displayGridGizmos = grid.displayGridGizmos ? false : true;
 
         //Resorces
-        if (Input.GetKeyDown(KeyCode.PageUp))
+        if (Input.GetKeyDown(KeyCode.KeypadPlus))
         {
             TractorBeemScript.astroyidsCollected++;
             GUIScript.UpdateResorces();
         }
+
+        //DebugInfo
+        if (Input.GetKeyDown(KeyCode.PageUp)) GameObject.Find("GUI").GetComponent<GUIScript>().DebugInfo();
     }
 
     //Below this is the secondary functions
