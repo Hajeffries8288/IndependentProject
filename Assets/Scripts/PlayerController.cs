@@ -335,6 +335,12 @@ public class PlayerController : MonoBehaviour
             TractorBeemScript.astroyidsCollected++;
             GUIScript.UpdateResorces();
         }
+
+        //TotalUsedMemory
+        if (Input.GetKeyDown(KeyCode.PageUp))
+        {
+            GUIScript.UpdateTotalUsedMemory();
+        }
     }
 
     //Below this is the secondary functions

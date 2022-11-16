@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Profiling;
 
 public class GUIScript : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class GUIScript : MonoBehaviour
 
     public static Text version;
     public static Text build;
+    public static Text totalUsedMemory;
 
     void Start() //Start is called before the first frame update
     {
@@ -27,21 +29,31 @@ public class GUIScript : MonoBehaviour
         if (Debug.isDebugBuild)
         {
             developmentBuild.SetActive(true);
+            System.GC.Collect();
 
             version = GameObject.Find("Version").GetComponent<Text>();
-            version.text = "Version: " + versionNumber;
             build = GameObject.Find("Build").GetComponent<Text>();
+            totalUsedMemory = GameObject.Find("TotalUsedMemory").GetComponent<Text>();
+
+            version.text = "Version: " + versionNumber;
             build.text = "Build: " + buildNumber;
+            totalUsedMemory.text = "Total Used Memory: " + Profiler.GetMonoUsedSizeLong();
         }
     }
 
-    void Update() //Update is called once per frame
+    public static void PauseGUI()           //WORK ON THIS !!!!!!!!!!!!!!!
     {
-        
+
     }
 
     public static void UpdateResorces()
     {
         resorcesText.text = "Resorces: " + TractorBeemScript.astroyidsCollected;
+    }
+
+    public static void UpdateTotalUsedMemory()
+    {
+        System.GC.Collect();
+        totalUsedMemory.text = "Total Used Memory: " + Profiler.GetMonoUsedSizeLong();
     }
 }
