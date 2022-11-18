@@ -336,8 +336,11 @@ public class PlayerController : MonoBehaviour
             GUIScript.UpdateResorces();
         }
 
-        //DebugInfo
-        if (Input.GetKeyDown(KeyCode.PageUp)) GameObject.Find("GUI").GetComponent<GUIScript>().DebugInfo();
+        //TotalUsedMemory
+        if (Input.GetKeyDown(KeyCode.PageUp))
+        {
+            GUIScript.UpdateTotalUsedMemory();
+        }
     }
 
     //Below this is the secondary functions
