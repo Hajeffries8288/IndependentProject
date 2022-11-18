@@ -30,7 +30,7 @@ public class GUIScript : MonoBehaviour
         //DebugInfo
         if (Debug.isDebugBuild)
         {
-            developmentBuild.SetActive(true);
+            debugInfo.SetActive(true);
             System.GC.Collect();
 
             version = GameObject.Find("Version").GetComponent<Text>();
