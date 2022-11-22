@@ -20,17 +20,18 @@ public class PlayerController : MonoBehaviour
     //Building
     [Header("Building")]
     public static bool building;
+    public static GameObject buildingTile;
+    public static int buildingIndex;
+    public static bool autoRotate;
+
     public float multible;
     public GameObject[] buildableObjects;
 
-    GameObject buildingTile;
-    int buildingIndex;
     int tilesNextToObjectBuildingIndex;
-    bool autoRotate;
     bool rotate;
 
     //Destroying
-    bool destroy;
+    public static bool destroy;
     GameObject shipCore;
     GameObject unattachedObjectsParent;
 
@@ -221,7 +222,7 @@ public class PlayerController : MonoBehaviour
                             buildingTileParticleSystemMain.startRotation = 0 * Mathf.Deg2Rad;
                         }
                     }
-                }       //!!!!!!
+                }
             }
 
             //Player rotation
@@ -346,13 +347,10 @@ public class PlayerController : MonoBehaviour
             if (Input.GetButtonDown("Fire1") && !building)
             {
                 Ray mousePosition = Camera.main.ScreenPointToRay(Input.mousePosition);
-                RaycastHit2D hit2D = Physics2D.GetRayIntersection(mousePosition, Mathf.Infinity, 1 << 0);
+                RaycastHit2D hit2D = Physics2D.GetRayIntersection(mousePosition, Mathf.Infinity, 1 << 0 | 1 << 7);
 
                 if (hit2D) print("Player Clicked " + hit2D.collider.name);
             }
-
-            //Grid
-            if (Input.GetKeyDown(KeyCode.Home)) grid.displayGridGizmos = grid.displayGridGizmos ? false : true;
 
             //Resorces
             if (Input.GetKeyDown(KeyCode.KeypadPlus))
@@ -361,6 +359,9 @@ public class PlayerController : MonoBehaviour
                 guiScript.UpdateResorces();
             }
 
+            //Grid
+            if (Input.GetKeyDown(KeyCode.Home)) grid.displayGridGizmos = grid.displayGridGizmos ? false : true;
+
             //TotalUsedMemory
             guiScript.UpdateTotalUsedMemory();
             if (Input.GetKeyDown(KeyCode.PageUp)) guiScript.debugInfoVisible();
@@ -368,23 +369,6 @@ public class PlayerController : MonoBehaviour
     }
 
     //Below this is the secondary functions
-
-    public void SelectedObjectFromGUI(int objectSelectedIndex)      //NOTE: Put this in GUIScript
-    {
-        if (buildingTile) Destroy(buildingTile);
-        buildingIndex = objectSelectedIndex;
-
-        if (buildingIndex == 1) destroy = false; //Slope
-        if (buildingIndex == 2) autoRotate = true; //Tractorbeem
-        if (buildingIndex == 3) autoRotate = true; //Connector 
-
-        building = true;
-    }
-
-    public void DestroySelected()      //NOTE: Put this in GUIScript
-    {
-        destroy = true;
-    }       //Goes with the SelectedObjectFromGUI method
 
     private GameObject FindClosestObjectThatContains(GameObject fromObject, string contains)
     {

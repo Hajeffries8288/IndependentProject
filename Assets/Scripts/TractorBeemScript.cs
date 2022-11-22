@@ -45,7 +45,7 @@ public class TractorBeemScript : MonoBehaviour
 
         if (boxCollider.enabled)
         {
-            if (closestAstroyid && (transform.position - closestAstroyid.transform.position).magnitude <= distanceToPickUpAstroyid) hit = Physics2D.Raycast(transform.position, -transform.up, distanceToPickUpAstroyid, 1 << 0, -Mathf.Infinity, Mathf.Infinity);
+            if (closestAstroyid && (transform.position - closestAstroyid.transform.position).magnitude <= distanceToPickUpAstroyid) hit = Physics2D.Raycast(transform.position, -transform.up, distanceToPickUpAstroyid, 1 << 0 | 1 << 7, -Mathf.Infinity, Mathf.Infinity);
 
             if (hit && hit.transform.name.Contains("Astroyids"))
             {

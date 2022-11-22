@@ -6,7 +6,7 @@ public class _Grid : MonoBehaviour
 {
 	public static Vector2 coreNodePos;
 
-	[HideInInspector] public bool displayGridGizmos;
+	public bool displayGridGizmos;
 
 	public LayerMask walkableMask;
 	public Vector2 gridWorldSize;
@@ -115,7 +115,7 @@ public class _Grid : MonoBehaviour
 			{
 				Gizmos.color = Color.red;
 				if (n.walkable && !n.isCoreNode)
-                {
+				{
 					Gizmos.color = Color.white;
 				}
 

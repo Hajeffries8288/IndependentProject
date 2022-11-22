@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//NOTE: Fix the astroyids colliders to be the correct size
-
 public class ObjectSpawner : MonoBehaviour
 {
     //Astroyids
@@ -57,9 +55,9 @@ public class ObjectSpawner : MonoBehaviour
 
         if (createAstroyid)
         {
-            float scale = Random.Range(0.1f, astroyidMaximumSize);
+            float scale = Random.Range(1, astroyidMaximumSize);
 
-            scale = Mathf.Clamp(scale, 0.1f, astroyidMaximumSize);
+            scale = Mathf.Clamp(scale, 1, astroyidMaximumSize);
             GameObject instAstroyid = Instantiate(astroid, transform);
             PlayerController.allObjects.Add(instAstroyid);
             Rigidbody2D instAstroyidRigidbody = instAstroyid.GetComponent<Rigidbody2D>();
@@ -103,6 +101,4 @@ public class ObjectSpawner : MonoBehaviour
         createAstroyid = true;
         StopCoroutine(CheckAstroyids());
     }
-
-    //Other stuff
 }

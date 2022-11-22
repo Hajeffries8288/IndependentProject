@@ -476,8 +476,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 617706664}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+      - m_Target: {fileID: 1661766253}
+        m_TargetAssemblyTypeName: GUIScript, Assembly-CSharp
         m_MethodName: SelectedObjectFromGUI
         m_Mode: 3
         m_Arguments:
@@ -948,8 +948,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 617706664}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+      - m_Target: {fileID: 1661766253}
+        m_TargetAssemblyTypeName: GUIScript, Assembly-CSharp
         m_MethodName: SelectedObjectFromGUI
         m_Mode: 3
         m_Arguments:
@@ -1940,8 +1940,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 617706664}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+      - m_Target: {fileID: 1661766253}
+        m_TargetAssemblyTypeName: GUIScript, Assembly-CSharp
         m_MethodName: SelectedObjectFromGUI
         m_Mode: 3
         m_Arguments:
@@ -2072,8 +2072,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 617706664}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+      - m_Target: {fileID: 1661766253}
+        m_TargetAssemblyTypeName: GUIScript, Assembly-CSharp
         m_MethodName: SelectedObjectFromGUI
         m_Mode: 3
         m_Arguments:
@@ -2649,8 +2649,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 617706664}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+      - m_Target: {fileID: 1661766253}
+        m_TargetAssemblyTypeName: GUIScript, Assembly-CSharp
         m_MethodName: DestroySelected
         m_Mode: 1
         m_Arguments:
@@ -3203,7 +3203,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugInfo: {fileID: 484487228}
-  versionNumber: 0.16.1
+  versionNumber: 0.16.3
   buildNumber: 2
   version: {fileID: 0}
   build: {fileID: 0}
@@ -3474,8 +3474,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 617706664}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+      - m_Target: {fileID: 1661766253}
+        m_TargetAssemblyTypeName: GUIScript, Assembly-CSharp
         m_MethodName: SelectedObjectFromGUI
         m_Mode: 3
         m_Arguments:

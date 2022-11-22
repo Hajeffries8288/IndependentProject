@@ -76,12 +76,6 @@ public class GUIScript : MonoBehaviour
         totalUsedMemory.text = "Total Used Memory: " + Profiler.GetMonoUsedSizeLong();
     }
 
-    public void debugInfoVisible()
-    {
-        showDebugInfo = showDebugInfo ? false : true;
-        debugInfo.SetActive(showDebugInfo);
-    }
-
     //GUI Buttons
     public void ExitGame()
     {
@@ -89,10 +83,33 @@ public class GUIScript : MonoBehaviour
         else UnityEditor.EditorApplication.isPlaying = false;
     }
 
+    public void debugInfoVisible()
+    {
+        showDebugInfo = showDebugInfo ? false : true;
+        debugInfo.SetActive(showDebugInfo);
+    }
+
     public void BuildingGUIButton()
     {
         open = open ? false : true;
         buildingGUI.SetActive(open);
         buildingGUIButton.transform.localPosition = open ? Vector3.right * -259.5422f : Vector3.right * -392.88f;
+    }
+
+    public void SelectedObjectFromGUI(int objectSelectedIndex)
+    {
+        if (PlayerController.buildingTile) Destroy(PlayerController.buildingTile);
+        PlayerController.buildingIndex = objectSelectedIndex;
+
+        if (PlayerController.buildingIndex == 1) PlayerController.destroy = false; //Slope
+        if (PlayerController.buildingIndex == 2) PlayerController.autoRotate = true; //Tractorbeem
+        if (PlayerController.buildingIndex == 3) PlayerController.autoRotate = true; //Connector 
+
+        PlayerController.building = true;
+    }
+
+    public void DestroySelected()
+    {
+        PlayerController.destroy = true;
     }
 }
