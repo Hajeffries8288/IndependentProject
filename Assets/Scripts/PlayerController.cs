@@ -15,7 +15,6 @@ public class PlayerController : MonoBehaviour
     Vector3 lastPosition;
     Vector3 delta;
     GameObject ship;
-    Canvas gui;
     Camera mainCamera;
 
     //Building
@@ -47,6 +46,11 @@ public class PlayerController : MonoBehaviour
     //Grid
     _Grid grid;
 
+    //GUI
+    GameObject gui;
+    Canvas guiCanvas;
+    public static GUIScript guiScript;
+
     private void Start()        // Start is called before the first frame update            //NOTE: Maybe change this to Awake()
     {
         //Movement
@@ -55,6 +59,11 @@ public class PlayerController : MonoBehaviour
 
         //AllObjects
         allObjects = new List<GameObject>(FindObjectsOfType<GameObject>());
+
+        //GUI
+        gui = GameObject.Find("GUI");
+        guiCanvas = gui.GetComponent<Canvas>();
+        guiScript = gui.GetComponent<GUIScript>();
 
         //Camera
         mainCamera = Camera.main;
@@ -65,7 +74,6 @@ public class PlayerController : MonoBehaviour
         //Destroying
         shipCore = GameObject.Find("ShipCore_Attach");
         unattachedObjectsParent = GameObject.Find("UnattachedObjects");
-        gui = GameObject.Find("GUI").GetComponent<Canvas>();
     }
 
     private void Update()       // Update is called once per frame
@@ -77,6 +85,8 @@ public class PlayerController : MonoBehaviour
         Building();
 
         Destroying();
+
+        Menue();
 
         Debuging();
     }
@@ -98,7 +108,7 @@ public class PlayerController : MonoBehaviour
         mainCamera.orthographicSize = mouseScroll;
 
         //Screen Grab
-        if (Input.GetButton("Fire3")) transform.localPosition = new Vector3(transform.localPosition.x - Input.GetAxis("Mouse X") * screenDragSpeed * gui.transform.lossyScale.x * Time.deltaTime, transform.localPosition.y - Input.GetAxis("Mouse Y") * screenDragSpeed * gui.transform.lossyScale.y * Time.deltaTime, transform.localPosition.z);
+        if (Input.GetButton("Fire3")) transform.localPosition = new Vector3(transform.localPosition.x - Input.GetAxis("Mouse X") * screenDragSpeed * guiCanvas.transform.lossyScale.x * Time.deltaTime, transform.localPosition.y - Input.GetAxis("Mouse Y") * screenDragSpeed * guiCanvas.transform.lossyScale.y * Time.deltaTime, transform.localPosition.z);
     }
 
     private void Clicking()
@@ -223,7 +233,12 @@ public class PlayerController : MonoBehaviour
             bool inGrid = buildingTileLocalPosition.x <= Mathf.RoundToInt(grid.gridWorldSize.x / 2) && buildingTileLocalPosition.x >= Mathf.RoundToInt(-grid.gridWorldSize.x/2) && buildingTileLocalPosition.y <= Mathf.RoundToInt(grid.gridWorldSize.y/2) && buildingTileLocalPosition.y >= Mathf.RoundToInt(-grid.gridWorldSize.y/2);
 
             //Places/Builds the tile
-            if (!destroy && Input.GetButton("Fire1") && nextToTile && buildingTileLocalPosition != FindClosestObjectThatContains(buildingTile, "_Tile").transform.localPosition && inGrid && TractorBeemScript.astroyidsCollected > 0)
+            Vector3 closestTileToBuildingTileLocalPosition = Vector3.zero;
+            Vector3 closestAttachToBuildingTileLocalPositon = Vector3.zero;
+            if (FindClosestObjectThatContains(buildingTile, "_Tile")) closestTileToBuildingTileLocalPosition = FindClosestObjectThatContains(buildingTile, "_Tile").transform.localPosition;
+            if (FindClosestObjectThatContains(buildingTile, "_Attach")) closestAttachToBuildingTileLocalPositon = FindClosestObjectThatContains(buildingTile, "_Attach").transform.localPosition;
+
+            if (!destroy && Input.GetButton("Fire1") && nextToTile && buildingTileLocalPosition != closestTileToBuildingTileLocalPosition && buildingTileLocalPosition != closestAttachToBuildingTileLocalPositon && inGrid && TractorBeemScript.astroyidsCollected > 0)
             {
                 if (buildingTileLocalPosition.x == Mathf.RoundToInt(grid.gridWorldSize.x / 2) || buildingTileLocalPosition.x == Mathf.RoundToInt(-grid.gridWorldSize.x / 2) || buildingTileLocalPosition.y == Mathf.RoundToInt(grid.gridWorldSize.y / 2) || buildingTileLocalPosition.y == (-grid.gridWorldSize.y / 2))
                 {
@@ -232,7 +247,7 @@ public class PlayerController : MonoBehaviour
                 }
 
                 TractorBeemScript.astroyidsCollected--;
-                GUIScript.UpdateResorces();
+                guiScript.UpdateResorces();
                 tileBuildingCollider.enabled = true;
                 allObjects.Add(buildingTile);
                 buildingTile = null;
@@ -273,14 +288,16 @@ public class PlayerController : MonoBehaviour
             //The error is caused by the rotation of the ship so for now it is restricted in the rigidbody of the ship
 
             //Make smaller !!!
-            bool overDestroyableTile = instDestroyGameObject.transform.localPosition == closestTileObjectToCheck.transform.localPosition || instDestroyGameObject.transform.localPosition.x - .5f == closestTileObjectToCheck.transform.localPosition.x || instDestroyGameObject.transform.localPosition.x + .5f == closestTileObjectToCheck.transform.localPosition.x || instDestroyGameObject.transform.localPosition.y - .5f == closestTileObjectToCheck.transform.localPosition.y || instDestroyGameObject.transform.localPosition.y + .5f == closestTileObjectToCheck.transform.localPosition.y;
+            bool overDestroyableTile;
+            if (closestTileObjectToCheck) overDestroyableTile = instDestroyGameObject.transform.localPosition == closestTileObjectToCheck.transform.localPosition || instDestroyGameObject.transform.localPosition.x - .5f == closestTileObjectToCheck.transform.localPosition.x || instDestroyGameObject.transform.localPosition.x + .5f == closestTileObjectToCheck.transform.localPosition.x || instDestroyGameObject.transform.localPosition.y - .5f == closestTileObjectToCheck.transform.localPosition.y || instDestroyGameObject.transform.localPosition.y + .5f == closestTileObjectToCheck.transform.localPosition.y;
+            else overDestroyableTile = false;
 
             if (Input.GetButtonDown("Fire1") && instDestroyGameObject && overDestroyableTile)
             {
                 allObjects.Remove(closestTileObjectToCheck);
                 Destroy(closestTileObjectToCheck);
                 TractorBeemScript.astroyidsCollected++;
-                GUIScript.UpdateResorces();
+                guiScript.UpdateResorces();
 
                 grid.UpdateGrid();
 
@@ -315,31 +332,38 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void Menue()
+    {
+        //Pause menue
+        if (Input.GetKeyDown(KeyCode.Escape)) guiScript.Pause();
+    }
+
     private void Debuging()
     {
-        //SelectingObjects
-        if (Input.GetButtonDown("Fire1") && !building)
+        if (Debug.isDebugBuild)
         {
-            Ray mousePosition = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit2D = Physics2D.GetRayIntersection(mousePosition, Mathf.Infinity, 1 << 0);
+            //SelectingObjects
+            if (Input.GetButtonDown("Fire1") && !building)
+            {
+                Ray mousePosition = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit2D hit2D = Physics2D.GetRayIntersection(mousePosition, Mathf.Infinity, 1 << 0);
 
-            if (hit2D) print("Player Clicked " + hit2D.collider.name);
-        }
+                if (hit2D) print("Player Clicked " + hit2D.collider.name);
+            }
 
-        //Grid
-        if (Input.GetKeyDown(KeyCode.Home)) grid.displayGridGizmos = grid.displayGridGizmos ? false : true;
+            //Grid
+            if (Input.GetKeyDown(KeyCode.Home)) grid.displayGridGizmos = grid.displayGridGizmos ? false : true;
 
-        //Resorces
-        if (Input.GetKeyDown(KeyCode.KeypadPlus))
-        {
-            TractorBeemScript.astroyidsCollected++;
-            GUIScript.UpdateResorces();
-        }
+            //Resorces
+            if (Input.GetKeyDown(KeyCode.KeypadPlus))
+            {
+                TractorBeemScript.astroyidsCollected++;
+                guiScript.UpdateResorces();
+            }
 
-        //TotalUsedMemory
-        if (Input.GetKeyDown(KeyCode.PageUp))
-        {
-            GUIScript.UpdateTotalUsedMemory();
+            //TotalUsedMemory
+            guiScript.UpdateTotalUsedMemory();
+            if (Input.GetKeyDown(KeyCode.PageUp)) guiScript.debugInfoVisible();
         }
     }
 
@@ -441,7 +465,7 @@ public class PlayerController : MonoBehaviour
         }
 
         return objectsToReturn;
-    }   //!!!!!
+    }
 
     private GameObject FindObjectInDistanceThatContains(GameObject fromObject, string contains, float distance)
     {

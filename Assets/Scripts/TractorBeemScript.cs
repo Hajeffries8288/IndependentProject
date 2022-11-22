@@ -8,20 +8,27 @@ public class TractorBeemScript : MonoBehaviour
     public float velocityOfPickingUpAstroyid;
     public static int astroyidsCollected; // This is temperary a better and more in depth resorce stuff will be made later
 
+    ObjectSpawner objectSpawner;
+    BoxCollider2D boxCollider;
+
     //Raycast
     public float distanceToPickUpAstroyid;
     RaycastHit2D hit;
 
     private void Start()
     {
-        
+        boxCollider = GetComponent<BoxCollider2D>();
+        objectSpawner = GameObject.Find("Ship").GetComponent<ObjectSpawner>();
     }
 
     private void FixedUpdate()
     {
-        DebugingPhysics();
+        if (name != "UslessUnattachedObject")
+        {
+            DebugingPhysics();
 
-        TractorBeem();
+            TractorBeem();
+        }
     }
 
     private void DebugingPhysics()
@@ -36,7 +43,7 @@ public class TractorBeemScript : MonoBehaviour
         Animator animator = GetComponent<Animator>();
         ParticleSystem particleSystem = GetComponent<ParticleSystem>();
 
-        if (GetComponent<BoxCollider2D>().enabled)
+        if (boxCollider.enabled)
         {
             if (closestAstroyid && (transform.position - closestAstroyid.transform.position).magnitude <= distanceToPickUpAstroyid) hit = Physics2D.Raycast(transform.position, -transform.up, distanceToPickUpAstroyid, 1 << 0, -Mathf.Infinity, Mathf.Infinity);
 
@@ -44,7 +51,7 @@ public class TractorBeemScript : MonoBehaviour
             {
                 Rigidbody2D rb = hit.transform.GetComponent<Rigidbody2D>();
 
-                rb.velocity = (transform.position - hit.transform.position) * velocityOfPickingUpAstroyid / hit.transform.localScale.x;
+                if (rb.velocity.x < objectSpawner.astroyidMaximumVelocity && rb.velocity.y < objectSpawner.astroyidMaximumVelocity) rb.velocity = (transform.position - hit.transform.position) * velocityOfPickingUpAstroyid / hit.transform.localScale.x;
                 rb.angularVelocity = 0;
                 animator.SetBool("Off/On", true);
                 particleSystem.Play();
@@ -53,7 +60,7 @@ public class TractorBeemScript : MonoBehaviour
                 {
                     Destroy(hit.transform.gameObject);
                     astroyidsCollected++;
-                    GUIScript.UpdateResorces();
+                    PlayerController.guiScript.UpdateResorces();
                     PlayerController.allObjects.Remove(hit.transform.gameObject);
                 }
             }
