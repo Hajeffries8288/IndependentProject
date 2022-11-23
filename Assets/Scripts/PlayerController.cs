@@ -52,7 +52,7 @@ public class PlayerController : MonoBehaviour
     Canvas guiCanvas;
     public static GUIScript guiScript;
 
-    private void Start()        // Start is called before the first frame update            //NOTE: Maybe change this to Awake()
+    private void Start()        // Start is called before the first frame update
     {
         //Movement
         mouseScroll = 5;
@@ -147,15 +147,13 @@ public class PlayerController : MonoBehaviour
 
             //Local variables
             Vector3 buildingTileLocalPosition = buildingTile.transform.localPosition;
-            float xBuildingTileMultibleThingy = Mathf.Round(buildingTileLocalPosition.x / multible) * multible;
-            float yBuildingTileMultibleThingy = Mathf.Round(buildingTileLocalPosition.y / multible) * multible;
-            float xTileBuildingBoxColliderSize = tileBuildingBoxCollider.size.x;
-            float yTileBuildingBoxColliderSize = tileBuildingBoxCollider.size.y;
+            Vector2 buildingTileMultiblePosition = new Vector2(Mathf.Round(buildingTileLocalPosition.x / multible) * multible, Mathf.Round(buildingTileLocalPosition.y / multible) * multible);
+            Vector2 tileBuildingBoxColliderSize = new Vector2(tileBuildingBoxCollider.size.x, tileBuildingBoxCollider.size.y);
 
-            if (xTileBuildingBoxColliderSize % 2 == 0 && yTileBuildingBoxColliderSize % 2 == 0) buildingTile.transform.localPosition = new Vector2(xBuildingTileMultibleThingy - .5f, yBuildingTileMultibleThingy - .5f);
-            else buildingTile.transform.localPosition = xTileBuildingBoxColliderSize % 2 == 0 ? new Vector2(xBuildingTileMultibleThingy - .5f, yBuildingTileMultibleThingy) : yTileBuildingBoxColliderSize % 2 == 0 ? new Vector2(xBuildingTileMultibleThingy, yBuildingTileMultibleThingy - .5f) : new Vector2(xBuildingTileMultibleThingy, yBuildingTileMultibleThingy);
-            if (xTileBuildingBoxColliderSize % 2 == 0 && yTileBuildingBoxColliderSize % 2 == 0) tilesNextToTileBuilding = FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize - .5f, yTileBuildingBoxColliderSize - .5f).ToArray();
-            else tilesNextToTileBuilding = xTileBuildingBoxColliderSize % 2 == 0 ? FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize - .5f, yTileBuildingBoxColliderSize).ToArray() : yTileBuildingBoxColliderSize % 2 == 0 ? FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize, yTileBuildingBoxColliderSize - .5f).ToArray() : FindObjectsNextToObjectDebug(buildingTile, "_Attach", 4, xTileBuildingBoxColliderSize, yTileBuildingBoxColliderSize).ToArray();
+            if (tileBuildingBoxColliderSize.x % 2 == 0 && tileBuildingBoxColliderSize.y % 2 == 0) buildingTile.transform.localPosition = new Vector2(buildingTileMultiblePosition.x - .5f, buildingTileMultiblePosition.y - .5f);
+            else buildingTile.transform.localPosition = tileBuildingBoxColliderSize.x % 2 == 0 ? new Vector2(buildingTileMultiblePosition.x - .5f, buildingTileMultiblePosition.y) : tileBuildingBoxColliderSize.y % 2 == 0 ? new Vector2(buildingTileMultiblePosition.x, buildingTileMultiblePosition.y - .5f) : new Vector2(buildingTileMultiblePosition.x, buildingTileMultiblePosition.y);
+            if (tileBuildingBoxColliderSize.x % 2 == 0 && tileBuildingBoxColliderSize.y % 2 == 0) tilesNextToTileBuilding = FindObjectsNextToObjectColliderSize(buildingTile, "_Attach", new Vector2(tileBuildingBoxColliderSize.x - .5f, tileBuildingBoxColliderSize.y - .5f)).ToArray();
+            else tilesNextToTileBuilding = tileBuildingBoxColliderSize.x % 2 == 0 ? FindObjectsNextToObjectColliderSize(buildingTile, "_Attach", new Vector2(tileBuildingBoxColliderSize.x - .5f, tileBuildingBoxColliderSize.y)).ToArray() : tileBuildingBoxColliderSize.y % 2 == 0 ? FindObjectsNextToObjectColliderSize(buildingTile, "_Attach", new Vector2(tileBuildingBoxColliderSize.x, tileBuildingBoxColliderSize.y - .5f)).ToArray() : FindObjectsNextToObjectColliderSize(buildingTile, "_Attach", new Vector2(tileBuildingBoxColliderSize.x, tileBuildingBoxColliderSize.y)).ToArray();
 
             buildingTileLocalPosition = buildingTile.transform.localPosition;
 
@@ -223,7 +221,7 @@ public class PlayerController : MonoBehaviour
                         }
                     }
                 }
-            }
+            } //This is in a early state and is using code that does work but looks bad and dosent work with objects that have a collider size (x or y) that is not equal to 1 
 
             //Player rotation
             if (rotate && Input.GetKeyDown(KeyCode.R)) buildingTile.transform.localRotation *= Quaternion.Euler(0, 0, 90);
@@ -428,9 +426,9 @@ public class PlayerController : MonoBehaviour
         }
 
         return objectsToReturn;
-    }       //Maybe rename or something also run tests
+    }
 
-    private List<GameObject> FindObjectsNextToObjectDebug(GameObject fromObject, string contains, int ammountOfObjects, float xBoxColliderSize, float yBoxColliderSize)
+    private List<GameObject> FindObjectsNextToObjectColliderSize(GameObject fromObject, string contains, Vector2 boxColliderSize)
     {
         List<GameObject> objectsToReturn = new List<GameObject>();
         List<GameObject> objectsThatContains = new List<GameObject>();
@@ -444,8 +442,7 @@ public class PlayerController : MonoBehaviour
         for (int i = 0; i < objectsThatContains.Count; i++)
         {
             float distanceBetweenObjects = (fromObject.transform.localPosition - objectsThatContains[i].transform.localPosition).magnitude;
-
-            if (distanceBetweenObjects == xBoxColliderSize || distanceBetweenObjects == yBoxColliderSize) objectsToReturn.Add(objectsThatContains[i]);
+            if (distanceBetweenObjects == boxColliderSize.x || distanceBetweenObjects == boxColliderSize.y) objectsToReturn.Add(objectsThatContains[i]);
         }
 
         return objectsToReturn;
