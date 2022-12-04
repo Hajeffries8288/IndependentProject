@@ -10,6 +10,8 @@ public class TractorBeemScript : MonoBehaviour
 
     ObjectSpawner objectSpawner;
     BoxCollider2D boxCollider;
+    ParticleSystem _particleSystem;
+    Animator animator;
 
     //Raycast
     public float distanceToPickUpAstroyid;
@@ -17,8 +19,11 @@ public class TractorBeemScript : MonoBehaviour
 
     private void Start()
     {
+        //TractorBeem
         boxCollider = GetComponent<BoxCollider2D>();
         objectSpawner = GameObject.Find("Ship").GetComponent<ObjectSpawner>();
+        _particleSystem = GetComponent<ParticleSystem>();
+        animator = GetComponent<Animator>();
     }
 
     private void FixedUpdate()
@@ -28,6 +33,12 @@ public class TractorBeemScript : MonoBehaviour
             DebugingPhysics();
 
             TractorBeem();
+        }
+        else
+        {
+            _particleSystem.Stop();
+            _particleSystem.Clear();
+            animator.SetBool("Off/On", false);
         }
     }
 
@@ -40,8 +51,6 @@ public class TractorBeemScript : MonoBehaviour
     private void TractorBeem()
     {
         GameObject closestAstroyid = FindClosestObjectThatContains(gameObject, "Astroyids");
-        Animator animator = GetComponent<Animator>();
-        ParticleSystem particleSystem = GetComponent<ParticleSystem>();
 
         if (boxCollider.enabled)
         {
@@ -54,7 +63,7 @@ public class TractorBeemScript : MonoBehaviour
                 if (rb.velocity.x < objectSpawner.astroyidMaximumVelocity && rb.velocity.y < objectSpawner.astroyidMaximumVelocity) rb.velocity = (transform.position - hit.transform.position) * velocityOfPickingUpAstroyid / hit.transform.localScale.x;
                 rb.angularVelocity = 0;
                 animator.SetBool("Off/On", true);
-                particleSystem.Play();
+                _particleSystem.Play();
 
                 if ((transform.position - hit.transform.position).magnitude <= 2)   //This is for testing 
                 {
@@ -67,14 +76,14 @@ public class TractorBeemScript : MonoBehaviour
             else
             {
                 animator.SetBool("Off/On", false);
-                particleSystem.Pause();
-                particleSystem.Clear();
+                _particleSystem.Pause();
+                _particleSystem.Clear();
             }
         }
         else
         {
-            particleSystem.Pause();
-            particleSystem.Clear();
+            _particleSystem.Pause();
+            _particleSystem.Clear();
         }
     }
 

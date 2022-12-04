@@ -114,7 +114,7 @@ public class PlayerController : MonoBehaviour
 
     private void Clicking()
     {
-        if (Input.GetButtonDown("Fire1") && !building)
+        if (Input.GetButtonDown("Fire1") && !building && !destroy)
         {
             RaycastHit2D raycast2D = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition), Mathf.Infinity, 1 << 0);
             Collider2D hit2D = raycast2D.collider;
@@ -342,7 +342,7 @@ public class PlayerController : MonoBehaviour
         if (Debug.isDebugBuild)
         {
             //SelectingObjects
-            if (Input.GetButtonDown("Fire1") && !building)
+            if (Input.GetButtonDown("Fire1") && !building && !destroy)
             {
                 Ray mousePosition = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit2D hit2D = Physics2D.GetRayIntersection(mousePosition, Mathf.Infinity, 1 << 0 | 1 << 7);
@@ -363,6 +363,9 @@ public class PlayerController : MonoBehaviour
             //TotalUsedMemory
             guiScript.UpdateTotalUsedMemory();
             if (Input.GetKeyDown(KeyCode.PageUp)) guiScript.debugInfoVisible();
+
+            //TEMP
+            AstarPath.active.Scan();
         }
     }
 
