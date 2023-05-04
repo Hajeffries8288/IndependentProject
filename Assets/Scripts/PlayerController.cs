@@ -52,7 +52,7 @@ public class PlayerController : MonoBehaviour
     Canvas guiCanvas;
     public static GUIScript guiScript;
 
-    private void Start()        // Start is called before the first frame update
+    private void Start()
     {
         //Movement
         mouseScroll = 5;
@@ -77,7 +77,7 @@ public class PlayerController : MonoBehaviour
         unattachedObjectsParent = GameObject.Find("UnattachedObjects");
     }
 
-    private void Update()       // Update is called once per frame
+    private void Update()
     {
         Movement();
 
@@ -93,7 +93,7 @@ public class PlayerController : MonoBehaviour
     }
 
     //Below this is the main functions
-
+    
     private void Movement()
     {
         //WASD 
@@ -133,6 +133,7 @@ public class PlayerController : MonoBehaviour
 
             //Creates the tile that the player is trying to build
             if (!buildingTile) buildingTile = Instantiate(buildableObjects[buildingIndex], ship.transform);
+            buildingTile.GetComponent<SpriteRenderer>().color = Color.green;
 
             //Local variables 
             Collider2D tileBuildingCollider = buildingTile.GetComponent<Collider2D>();
@@ -247,6 +248,7 @@ public class PlayerController : MonoBehaviour
 
                 TractorBeemScript.astroyidsCollected--;
                 guiScript.UpdateResorces();
+                buildingTile.GetComponent<SpriteRenderer>().color = Color.white;
                 tileBuildingCollider.enabled = true;
                 allObjects.Add(buildingTile);
                 buildingTile = null;
@@ -518,7 +520,7 @@ public class PlayerController : MonoBehaviour
             }
         }
         return attached;
-    }               //This is detecting corner tiles maybe mess with the size of the nodes or something
+    }
 
     private int GetDistance(Node nodeA, Node nodeB)
     {

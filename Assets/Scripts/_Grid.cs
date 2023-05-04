@@ -51,7 +51,7 @@ public class _Grid : MonoBehaviour
 	}
 
 	public void UpdateGrid()
-    {
+	{
 		Vector2 worldBottomLeft = (Vector2)transform.position - Vector2.right * gridWorldSize.x / 2 - Vector2.up * gridWorldSize.y / 2;
 
 		for (int x = 0; x < gridSizeX; x++)
@@ -65,7 +65,6 @@ public class _Grid : MonoBehaviour
 			}
 		}
 	}
-
 
 	public List<Node> GetNeighbours(Node node, int depth = 1)
 	{
@@ -92,6 +91,32 @@ public class _Grid : MonoBehaviour
 
 		return neighbours;
 	}
+
+	public Node GetAbove(Node node, int depth = 1)
+    {
+		Node aboveNode = null;
+
+		for (int x = -depth; x <= depth; x++)
+        {
+			for (int y = -depth; y <= depth; y++)
+            {
+				if (x == 0 && y == 0)
+                {
+					continue;
+				}
+
+				int checkX = node.gridX + x;
+				int checkY = node.gridY + y;
+
+				if (checkY >= 0 && checkY < gridSizeY)
+                {
+					aboveNode = grid[checkX, checkY];
+                }
+            }
+        }
+
+		return aboveNode;
+    }
 
 
 	public Node NodeFromWorldPoint(Vector2 worldPosition)
